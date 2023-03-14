@@ -1,7 +1,7 @@
 #include "DimensionAction.h"
 #include "RendererSettingsAction.h"
 #include "ViewerWidget.h"
-#include "VolumeViewerPlugin.h"
+#include "Flow4DViewerPlugin.h"
 #include <QtCore>
 #include <QtDebug>
 #include <QFileDialog>

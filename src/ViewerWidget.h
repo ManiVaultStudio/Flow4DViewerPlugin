@@ -14,9 +14,10 @@
 #include <vtkImageData.h>
 #include <QVTKOpenGLNativeWidget.h>
 #include <vtkSmartVolumeMapper.h>   
+#include <vtkPolyData.h>
 
 
-class VolumeViewerPlugin;
+class Flow4DViewerPlugin;
 using namespace hdps;
 
 
@@ -26,7 +27,7 @@ class ViewerWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit ViewerWidget(VolumeViewerPlugin& VolumeViewerPlugin, QWidget* parent = nullptr);
+    explicit ViewerWidget(Flow4DViewerPlugin& Flow4DViewerPlugin, QWidget* parent = nullptr);
     ~ViewerWidget();
 
     /** Set inital data in the viewerWidget  
@@ -64,6 +65,7 @@ private:
     vtkSmartPointer<vtkRenderer> mRenderer;                         /** vtk Renderer*/
     vtkSmartPointer<vtkGenericOpenGLRenderWindow> mRenderWindow;    /** vtk RenderWindow*/
     vtkSmartPointer<QVTKInteractor> mInteractor;                    /** qvtk Interactor*/
+    vtkSmartPointer<vtkPolyData> _polyData ;
     //vtkSmartPointer<vtkInteractorStyle> mInteractorStyle;           /** interactorStyle*/
     int numPoints;                                                  /** Number of points in current dataset*/
     int numDimensions;                                              /** Number of dimensions in current dataset*/
@@ -81,7 +83,7 @@ private:
     
 
 protected:
-    VolumeViewerPlugin& _VolumeViewerPlugin;
+    Flow4DViewerPlugin& _Flow4DViewerPlugin;
 };
 
 #endif // ViewerWidget_H

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.17.0)
 
-set(PROJECT "VolumeViewerPlugin")
+set(PROJECT "Flow4DViewerPlugin")
 
 PROJECT(${PROJECT})
 
@@ -28,8 +28,8 @@ file(TO_CMAKE_PATH $ENV{HDPS_INSTALL_DIR} INSTALL_DIR)
 
 set(PLUGIN
 	src/Common.h
-	src/VolumeViewerPlugin.h
-	src/VolumeViewerPlugin.cpp
+	src/Flow4DViewerPlugin.h
+	src/Flow4DViewerPlugin.cpp
 )
 
 file(GLOB ACTIONS src/*Action.*)
