@@ -163,6 +163,8 @@ vtkSmartPointer<vtkImageData> ViewerWidget::setData(Points& data, int chosenDim,
     vtkPointObject->SetNumberOfPoints(numPoints);
     int iterator = 0;
     vtkSmartPointer<vtkCellArray> cells = vtkSmartPointer<vtkCellArray>::New();
+    vtkSmartPointer<vtkFloatArray> dataArray = vtkSmartPointer<vtkFloatArray>::New();
+    dataArray->SetNumberOfValues(numPoints);
     int pointCounter = 0;
     for (int k = 0; k < numPoints / (lineSize); k++) {
 
@@ -171,8 +173,10 @@ vtkSmartPointer<vtkImageData> ViewerWidget::setData(Points& data, int chosenDim,
         
         for (int i = 0; i < lineSize; i++) {
             double p[3] = { data.getValueAt(iterator), data.getValueAt(iterator + 1), data.getValueAt(iterator + 2) };
-            iterator = iterator + 3;
+            dataArray->SetValue(pointCounter, data.getValueAt(iterator + 3));
+            iterator = iterator + 4;
             vtkPointObject->SetPoint(pointCounter, p);
+            
             polyLine->GetPointIds()->SetId(i, pointCounter);
             pointCounter++;
         }
@@ -180,7 +184,10 @@ vtkSmartPointer<vtkImageData> ViewerWidget::setData(Points& data, int chosenDim,
 
     }
 
+    
+    //vtkPointObject->SetData(dataArray);
     _polyData->SetPoints(vtkPointObject);
+    _polyData->GetPointData()->SetScalars(dataArray);
 
     _polyData->SetLines(cells);
 
@@ -200,6 +207,7 @@ vtkSmartPointer<vtkImageData> ViewerWidget::setData(Points& data, int chosenDim,
 	
 void ViewerWidget::renderData(vtkSmartPointer<vtkPlaneCollection> planeCollection, vtkSmartPointer<vtkImageData> imData, std::string interpolationOption, std::string colorMap, bool shadingEnabled, std::vector<double> shadingParameters){
  
+
 
     vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
     mapper->SetInputData(_polyData);
