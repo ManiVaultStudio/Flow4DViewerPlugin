@@ -207,14 +207,142 @@ vtkSmartPointer<vtkImageData> ViewerWidget::setData(Points& data, int chosenDim,
 	
 void ViewerWidget::renderData(vtkSmartPointer<vtkPlaneCollection> planeCollection, vtkSmartPointer<vtkImageData> imData, std::string interpolationOption, std::string colorMap, bool shadingEnabled, std::vector<double> shadingParameters){
  
+   
+    double dataMinimum = _polyData->GetScalarRange()[0];
+    double background = 0;
+    double dataMaximum = _polyData->GetScalarRange()[1];
 
+    // Empty the renderer to avoid overlapping visualizations.
+    mRenderer->RemoveAllViewProps();
+
+    // Create color transfer function.
+    vtkSmartPointer<vtkColorTransferFunction> color = vtkSmartPointer<vtkColorTransferFunction>::New();
+    color->AddRGBPoint(0, 0, 0, 0, 1, 1);
+
+    // Get the colormap action.
+    auto& colorMapAction = _Flow4DViewerPlugin.getRendererSettingsAction().getColoringAction().getColorMapAction();
+
+    // Get the colormap image.
+    auto colorMapImage = colorMapAction.getColorMapImage();
+
+    // Get background enabled parameter.
+    //bool backgroundEndabled = _Flow4DViewerPlugin.getBackgroundEndabled();
+
+    // Loop to read in colors from the colormap qimage.
+    for (int pixelX = 0; pixelX < colorMapImage.width(); pixelX++) {
+        const auto normalizedPixelX = static_cast<float>(pixelX) / static_cast<float>(colorMapImage.width());
+        const auto pixelColor = colorMapImage.pixelColor(pixelX, 0);
+        color->AddRGBPoint(normalizedPixelX * (dataMaximum - dataMinimum) + dataMinimum, pixelColor.redF(), pixelColor.greenF(), pixelColor.blueF());
+    }
+    
+
+    //vtkSmartPointer<vtkPiecewiseFunction> colormapOpacity = vtkSmartPointer<vtkPiecewiseFunction>::New();
+    // Set the opacity of the non-object voxels to 0.
+    //colormapOpacity->AddPoint(background, 0, 1, 1);
+
+    // Loop to read in colors from the colormap qimage.
+    /*for (int pixelX = 0; pixelX < colorMapImage.width(); pixelX++) {
+        const auto normalizedPixelX = static_cast<float>(pixelX) / static_cast<float>(colorMapImage.width());
+        const auto pixelColor = colorMapImage.pixelColor(pixelX, 0);
+        colormapOpacity->AddPoint(normalizedPixelX * (dataMaximum - dataMinimum) + dataMinimum, pixelColor.alphaF());
+
+    }*/
+
+    
+
+    // Create volumeProperty for collormapping and opacitymapping.
+    //vtkSmartPointer<vtkVolumeProperty> volumeProperty = vtkSmartPointer<vtkVolumeProperty>::New();
+
+    
+
+    //// Create volumeActor.
+    //vtkSmartPointer<vtkVolume> volActor = vtkSmartPointer<vtkVolume>::New();
+    //// Set volumeMapper .
+    //volActor->SetMapper(volMapper);
+    //// Set opacity and color table.
+    //volActor->SetProperty(volumeProperty);
+    //// Set the clipping planes.
+    //volMapper->SetClippingPlanes(planeCollection);
+    //volMapper->Update();
+
+    // Create piecewise function for opacity table.
+    //vtkSmartPointer<vtkPiecewiseFunction> compositeOpacity = vtkSmartPointer<vtkPiecewiseFunction>::New();
+    //vtkSmartPointer<vtkPiecewiseFunction> compositeOpacityBackground = vtkSmartPointer<vtkPiecewiseFunction>::New();
+    //compositeOpacityBackground->AddPoint(background, 0, 1, 1);
+
+    //// Checks if there is data is selected.
+    ////if (!_dataSelected) {
+    //    // Use the opacity information indicated in the colormap.
+    //    compositeOpacity = colormapOpacity;
+    //    // Add the Opacity options to volumeproperty.
+    //    volumeProperty->SetScalarOpacity(compositeOpacity);
+    //}
+    //else {
+
+    //    if (backgroundEndabled) {
+    //        // Get background alpha parameter.
+    //        float backgroundAlpha = _Flow4DViewerPlugin.getBackgroundAlpha();
+
+    //        // Set the nonselected data as semi-transparent.
+    //        compositeOpacityBackground->AddSegment(dataMinimum, backgroundAlpha, dataMaximum, backgroundAlpha);
+
+    //        //Check the currently selected option for selection opacity
+    //        if (_Flow4DViewerPlugin.getSelectionOpaque()) {
+    //            // Set object values as opague.
+    //            compositeOpacity->AddSegment(dataMinimum, 1, dataMaximum, 1);
+    //        }
+    //        else {
+    //            // Use the transfer function values
+    //            compositeOpacity = colormapOpacity;
+    //        }
+    //    }
+    //    else {
+    //        //Check the currently selected option for selection opacity
+    //        if (_Flow4DViewerPlugin.getSelectionOpaque()) {
+    //            // Set object values as opague.
+    //            compositeOpacity->AddSegment(dataMinimum, 1, dataMaximum, 1);
+    //        }
+    //        else {
+    //            // Use the transfer function values
+    //            compositeOpacity = colormapOpacity;
+    //        }
+    //        // Set the nonselected data as transparent.
+    //        compositeOpacityBackground->AddSegment(dataMinimum, 0, dataMaximum, 0);
+    //    }
+    //    // Use the background alpha for all non labeled datapoints.
+    //    volumeProperty->SetScalarOpacity(compositeOpacityBackground);
+    //    // Use selected data alpha for all labeled datapoints.
+    //    volumeProperty->SetLabelScalarOpacity(1, compositeOpacity);
+    //}
+
+    // Add colortransferfunction to volumeproperty.
+    //volumeProperty->SetColor(color);
+
+    //// Check whether shading has been turned on or off and apply the shading parameters.
+    //if (shadingEnabled) {
+    //    volumeProperty->ShadeOn();
+    //    volumeProperty->SetAmbient(shadingParameters[0]);
+    //    volumeProperty->SetDiffuse(shadingParameters[1]);
+    //    volumeProperty->SetSpecular(shadingParameters[2]);
+    //}
+    //else {
+    //    volumeProperty->ShadeOff();
+    //    volumeProperty->SetAmbient(1);
+    //    volumeProperty->SetDiffuse(0);
+    //    volumeProperty->SetSpecular(0);
+    //}
 
     vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
     mapper->SetInputData(_polyData);
+    mapper->SetLookupTable(color);
+
 
     vtkSmartPointer<vtkActor> volActor = vtkSmartPointer<vtkActor>::New();
     volActor->SetMapper(mapper);
-    volActor->GetProperty()->SetColor(1, 0, 0);
+    //volActor->SetProperty(color);
+    
+
+    //volActor->GetProperty()->SetColor(1, 0, 0);
  
 	// Add the current volume to the renderer.
 	mRenderer->AddViewProp(volActor);
