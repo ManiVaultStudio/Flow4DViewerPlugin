@@ -14,10 +14,10 @@ DimensionAction::DimensionAction(RendererSettingsAction& rendererSettingsAction,
     _rendererSettingsAction(rendererSettingsAction),
 
     _viewerWidget(nullptr),
-    // Action to change the current dimension
-    _dimensionAction(this, "Data dimension")
+    _selectedDataAction(this, "Select data", { "Flow Speed","Line Index", "Time Interval"}, "Flow Speed", "Flow Speed")
+    
 {
-    setText("Dimension parameters");
+    setText("Data value selecter");
     
     _viewerWidget = viewerWidget;
 

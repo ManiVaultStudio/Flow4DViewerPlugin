@@ -33,7 +33,7 @@ public:
     /** Set inital data in the viewerWidget  
     *   The chosenDim input is an integer indicating which dimension is to be visualized, starting from 0.
     */
-    vtkSmartPointer<vtkImageData> setData(Points& data, int chosenDim, std::string interpolationOption, std::string colorMap);
+    vtkSmartPointer<vtkImageData> setData(Points& data, int chosenDim, int boundsArray[2], std::string colorMap);
 
     /** Renders the data
     *   This function requires a planecollection to indicate where slicing needs to take place
@@ -41,7 +41,7 @@ public:
     
     *  An interpolation option string is also required due to the 3 different type of colormap interpolations that are available, namely NN, LIN and CUBE 
     */
-    void renderData(vtkSmartPointer<vtkPlaneCollection> planeCollection, vtkSmartPointer<vtkImageData> imData, std::string interpolationOption, std::string colorMap, bool shadingEnabled, std::vector<double> shadingParameters);
+    void renderData( vtkSmartPointer<vtkImageData> imData, std::string interpolationOption, std::string colorMap, bool shadingEnabled, std::vector<double> shadingParameters);
 
     /** This function returns a vtkImageData object containing the selected data points.
     *   Next to the points data, an array containing the selected indices is also needed.
@@ -49,10 +49,10 @@ public:
     */
    void setSelectedData(Points& points, std::vector<unsigned int, std::allocator<unsigned int>> selectionIndices, int chosenDim);
 
-   void setSelectedCell(int cellID, int *xyz);
-   int* getSelectedCellCoordinate() {
+   //void setSelectedCell(int cellID, int *xyz);
+   /*int* getSelectedCellCoordinate() {
        return _selectedCellCoordinate;
-   }
+   }*/
 
    vtkSmartPointer<vtkImageData> connectedSelection(Points& points,int choseDim, int *seedpoint,float upThreshold, float lowThreshold);
 
@@ -71,6 +71,7 @@ private:
     int numDimensions;                                              /** Number of dimensions in current dataset*/
     vtkSmartPointer<vtkImageData> _labelMap;                          /** imagedata indicating the label wether data is part of selection or not*/
     vtkSmartPointer<vtkImageData> _imData;
+    vtkSmartPointer<vtkFloatArray> _savedSpeedArray;
     bool _dataSelected;                                              /** Boolian to indicate wether or not data is selected*/
     int _xSize;
     int _ySize;

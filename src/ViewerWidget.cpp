@@ -5,6 +5,7 @@
 #include <cmath>
 #include <iostream>
 #include <vector>
+#include <iterator>
 #include <algorithm>
 /** Plugin headers */
 #include <ViewerWidget.h>
@@ -84,7 +85,7 @@ class MouseInteractorStyle : public vtkInteractorStyleTrackballCamera
             double* worldPosition = picker->GetPickPosition();
             int cellID = picker->GetCellId();
             auto xyz = picker->GetCellIJK();          
-            _widget->setSelectedCell(cellID, xyz);
+            //_widget->setSelectedCell(cellID, xyz);
 
             // Forward events
             vtkInteractorStyleTrackballCamera::OnLeftButtonDown();
@@ -121,7 +122,7 @@ ViewerWidget::ViewerWidget(Flow4DViewerPlugin& Flow4DViewerPlugin, QWidget* pare
     _thresholded(false),
     _lowerThreshold(),
     _upperThreshold(),
-    _polyData()
+    _polyData(), _savedSpeedArray()
 
 {
 	setAcceptDrops(true);
@@ -143,6 +144,7 @@ ViewerWidget::ViewerWidget(Flow4DViewerPlugin& Flow4DViewerPlugin, QWidget* pare
 	numDimensions = 0;
 	numPoints = 0;
     _selectedCell = -1;
+    _savedSpeedArray = vtkSmartPointer<vtkFloatArray>::New();
     
 }
 
@@ -151,11 +153,18 @@ ViewerWidget::~ViewerWidget()
 
 }
 
-vtkSmartPointer<vtkImageData> ViewerWidget::setData(Points& data, int chosenDim, std::string interpolationOption, std::string colorMap)
+vtkSmartPointer<vtkImageData> ViewerWidget::setData(Points& data, int chosenDim, int boundsArray[2], std::string colorMap)
 {
+    int upperBound = boundsArray[1];
+    int lowerBound = boundsArray[0];
+    
+    std::cout << boundsArray[0] << std::endl;
+    std::cout << boundsArray[1] << std::endl;
+    
+    //chosenDim = 3;
 	// Get number of points from points dataset.
 	numPoints = data.getNumPoints();
-    std::cout << data.getValueAt(0) << std::endl;
+    
 	// Get number of dimensions from points dataset.
 	numDimensions = 1;
     int lineSize = data.getProperty("lineSize").toInt();
@@ -166,34 +175,61 @@ vtkSmartPointer<vtkImageData> ViewerWidget::setData(Points& data, int chosenDim,
     vtkSmartPointer<vtkFloatArray> dataArray = vtkSmartPointer<vtkFloatArray>::New();
     dataArray->SetNumberOfValues(numPoints);
     int pointCounter = 0;
-    for (int k = 0; k < numPoints / (lineSize); k++) {
-
-        vtkSmartPointer<vtkPolyLine> polyLine = vtkSmartPointer<vtkPolyLine>::New();
-        polyLine->GetPointIds()->SetNumberOfIds(lineSize);
-        
-        for (int i = 0; i < lineSize; i++) {
-            double p[3] = { data.getValueAt(iterator), data.getValueAt(iterator + 1), data.getValueAt(iterator + 2) };
-            dataArray->SetValue(pointCounter, data.getValueAt(iterator + 3));
-            iterator = iterator + 4;
-            vtkPointObject->SetPoint(pointCounter, p);
-            
-            polyLine->GetPointIds()->SetId(i, pointCounter);
-            pointCounter++;
-        }
-        cells->InsertNextCell(polyLine);
-
-    }
-
     
+
+        //for (int k = 0; k < numPoints / (lineSize); k++) {
+        while(iterator/6 < numPoints){
+            vtkSmartPointer<vtkPolyLine> polyLine = vtkSmartPointer<vtkPolyLine>::New();
+           
+
+            float currentLineIndex = data.getValueAt(iterator + 4);//lineIndex
+            float nextLineIndex = currentLineIndex;
+            int i = 0;
+            //std::cout << currentLineIndex << "==" << nextLineIndex << std::endl;
+            //std::cout <<  "pre loop" <<  std::endl;
+            std::vector<std::vector<int>> savePoints;
+            while (currentLineIndex == nextLineIndex)
+            {
+                if (data.getValueAt(iterator + 5) <= upperBound && data.getValueAt(iterator + 5) >= lowerBound) {
+                    //std::cout << "im here2" << std::endl;
+
+                    //std::cout << currentLineIndex << "==" << nextLineIndex << std::endl;
+                    double p[3] = { data.getValueAt(iterator), data.getValueAt(iterator + 1), data.getValueAt(iterator + 2) };
+                    dataArray->SetValue(pointCounter, data.getValueAt(iterator + chosenDim));
+
+                    vtkPointObject->SetPoint(pointCounter, p);
+
+                    savePoints.push_back({ i,pointCounter });
+                    i++;
+                }
+                    //polyLine->GetPointIds()->SetId(i, pointCounter);
+                    iterator = iterator + 6;
+                    pointCounter++;
+                    nextLineIndex = data.getValueAt(iterator + 4);
+                    
+                
+            }
+            polyLine->GetPointIds()->SetNumberOfIds(i);
+            for (int i = 0; i < savePoints.size(); i++) {
+                
+                polyLine->GetPointIds()->SetId(savePoints[i][0], savePoints[i][1]);
+            }
+           
+            cells->InsertNextCell(polyLine);
+
+        }
+
+        
     //vtkPointObject->SetData(dataArray);
     _polyData->SetPoints(vtkPointObject);
+    _savedSpeedArray = dataArray;
     _polyData->GetPointData()->SetScalars(dataArray);
-
+    
     _polyData->SetLines(cells);
 
    
     
-
+   
 
 
 	//// Create a vtkimagedata object of size xSize, ySize and zSize with vtk_float type vectors.
@@ -205,9 +241,9 @@ vtkSmartPointer<vtkImageData> ViewerWidget::setData(Points& data, int chosenDim,
 	return imData;
 }
 	
-void ViewerWidget::renderData(vtkSmartPointer<vtkPlaneCollection> planeCollection, vtkSmartPointer<vtkImageData> imData, std::string interpolationOption, std::string colorMap, bool shadingEnabled, std::vector<double> shadingParameters){
+void ViewerWidget::renderData( vtkSmartPointer<vtkImageData> imData, std::string interpolationOption, std::string colorMap, bool shadingEnabled, std::vector<double> shadingParameters){
  
-   
+    
     double dataMinimum = _polyData->GetScalarRange()[0];
     double background = 0;
     double dataMaximum = _polyData->GetScalarRange()[1];
@@ -217,7 +253,9 @@ void ViewerWidget::renderData(vtkSmartPointer<vtkPlaneCollection> planeCollectio
 
     // Create color transfer function.
     vtkSmartPointer<vtkColorTransferFunction> color = vtkSmartPointer<vtkColorTransferFunction>::New();
-    color->AddRGBPoint(0, 0, 0, 0, 1, 1);
+    color->AddRGBPoint(0, 0, 0, 1, 1, 1);
+
+    
 
     // Get the colormap action.
     auto& colorMapAction = _Flow4DViewerPlugin.getRendererSettingsAction().getColoringAction().getColorMapAction();
@@ -225,219 +263,91 @@ void ViewerWidget::renderData(vtkSmartPointer<vtkPlaneCollection> planeCollectio
     // Get the colormap image.
     auto colorMapImage = colorMapAction.getColorMapImage();
 
-    // Get background enabled parameter.
-    //bool backgroundEndabled = _Flow4DViewerPlugin.getBackgroundEndabled();
+    
 
     // Loop to read in colors from the colormap qimage.
-    for (int pixelX = 0; pixelX < colorMapImage.width(); pixelX++) {
-        const auto normalizedPixelX = static_cast<float>(pixelX) / static_cast<float>(colorMapImage.width());
-        const auto pixelColor = colorMapImage.pixelColor(pixelX, 0);
-        color->AddRGBPoint(normalizedPixelX * (dataMaximum - dataMinimum) + dataMinimum, pixelColor.redF(), pixelColor.greenF(), pixelColor.blueF());
+    if (_dataSelected)
+    {
+        color->AddRGBPoint(1, 1, 0, 0, 1, 1);
+    }
+    else {
+        for (int pixelX = 0; pixelX < colorMapImage.width(); pixelX++) {
+            const auto normalizedPixelX = static_cast<float>(pixelX) / static_cast<float>(colorMapImage.width());
+            const auto pixelColor = colorMapImage.pixelColor(pixelX, 0);
+            color->AddRGBPoint(normalizedPixelX * (dataMaximum - dataMinimum) + dataMinimum, pixelColor.redF(), pixelColor.greenF(), pixelColor.blueF());
+        }
+
     }
     
-
-    //vtkSmartPointer<vtkPiecewiseFunction> colormapOpacity = vtkSmartPointer<vtkPiecewiseFunction>::New();
-    // Set the opacity of the non-object voxels to 0.
-    //colormapOpacity->AddPoint(background, 0, 1, 1);
-
-    // Loop to read in colors from the colormap qimage.
-    /*for (int pixelX = 0; pixelX < colorMapImage.width(); pixelX++) {
-        const auto normalizedPixelX = static_cast<float>(pixelX) / static_cast<float>(colorMapImage.width());
-        const auto pixelColor = colorMapImage.pixelColor(pixelX, 0);
-        colormapOpacity->AddPoint(normalizedPixelX * (dataMaximum - dataMinimum) + dataMinimum, pixelColor.alphaF());
-
-    }*/
+    
+    vtkSmartPointer<vtkPiecewiseFunction> colormapOpacity = vtkSmartPointer<vtkPiecewiseFunction>::New();
+     //Set the opacity of the non-object voxels to 0.
+    colormapOpacity->AddPoint(background, 0, 1, 1);
 
     
-
-    // Create volumeProperty for collormapping and opacitymapping.
-    //vtkSmartPointer<vtkVolumeProperty> volumeProperty = vtkSmartPointer<vtkVolumeProperty>::New();
-
-    
-
-    //// Create volumeActor.
-    //vtkSmartPointer<vtkVolume> volActor = vtkSmartPointer<vtkVolume>::New();
-    //// Set volumeMapper .
-    //volActor->SetMapper(volMapper);
-    //// Set opacity and color table.
-    //volActor->SetProperty(volumeProperty);
-    //// Set the clipping planes.
-    //volMapper->SetClippingPlanes(planeCollection);
-    //volMapper->Update();
-
-    // Create piecewise function for opacity table.
-    //vtkSmartPointer<vtkPiecewiseFunction> compositeOpacity = vtkSmartPointer<vtkPiecewiseFunction>::New();
-    //vtkSmartPointer<vtkPiecewiseFunction> compositeOpacityBackground = vtkSmartPointer<vtkPiecewiseFunction>::New();
-    //compositeOpacityBackground->AddPoint(background, 0, 1, 1);
-
-    //// Checks if there is data is selected.
-    ////if (!_dataSelected) {
-    //    // Use the opacity information indicated in the colormap.
-    //    compositeOpacity = colormapOpacity;
-    //    // Add the Opacity options to volumeproperty.
-    //    volumeProperty->SetScalarOpacity(compositeOpacity);
-    //}
-    //else {
-
-    //    if (backgroundEndabled) {
-    //        // Get background alpha parameter.
-    //        float backgroundAlpha = _Flow4DViewerPlugin.getBackgroundAlpha();
-
-    //        // Set the nonselected data as semi-transparent.
-    //        compositeOpacityBackground->AddSegment(dataMinimum, backgroundAlpha, dataMaximum, backgroundAlpha);
-
-    //        //Check the currently selected option for selection opacity
-    //        if (_Flow4DViewerPlugin.getSelectionOpaque()) {
-    //            // Set object values as opague.
-    //            compositeOpacity->AddSegment(dataMinimum, 1, dataMaximum, 1);
-    //        }
-    //        else {
-    //            // Use the transfer function values
-    //            compositeOpacity = colormapOpacity;
-    //        }
-    //    }
-    //    else {
-    //        //Check the currently selected option for selection opacity
-    //        if (_Flow4DViewerPlugin.getSelectionOpaque()) {
-    //            // Set object values as opague.
-    //            compositeOpacity->AddSegment(dataMinimum, 1, dataMaximum, 1);
-    //        }
-    //        else {
-    //            // Use the transfer function values
-    //            compositeOpacity = colormapOpacity;
-    //        }
-    //        // Set the nonselected data as transparent.
-    //        compositeOpacityBackground->AddSegment(dataMinimum, 0, dataMaximum, 0);
-    //    }
-    //    // Use the background alpha for all non labeled datapoints.
-    //    volumeProperty->SetScalarOpacity(compositeOpacityBackground);
-    //    // Use selected data alpha for all labeled datapoints.
-    //    volumeProperty->SetLabelScalarOpacity(1, compositeOpacity);
-    //}
-
-    // Add colortransferfunction to volumeproperty.
-    //volumeProperty->SetColor(color);
-
-    //// Check whether shading has been turned on or off and apply the shading parameters.
-    //if (shadingEnabled) {
-    //    volumeProperty->ShadeOn();
-    //    volumeProperty->SetAmbient(shadingParameters[0]);
-    //    volumeProperty->SetDiffuse(shadingParameters[1]);
-    //    volumeProperty->SetSpecular(shadingParameters[2]);
-    //}
-    //else {
-    //    volumeProperty->ShadeOff();
-    //    volumeProperty->SetAmbient(1);
-    //    volumeProperty->SetDiffuse(0);
-    //    volumeProperty->SetSpecular(0);
-    //}
+  
 
     vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
     mapper->SetInputData(_polyData);
     mapper->SetLookupTable(color);
+    
+   
+    
 
 
     vtkSmartPointer<vtkActor> volActor = vtkSmartPointer<vtkActor>::New();
     volActor->SetMapper(mapper);
-    //volActor->SetProperty(color);
+    volActor->GetProperty()->SetOpacity(0.5);
     
-
-    //volActor->GetProperty()->SetColor(1, 0, 0);
+    
  
 	// Add the current volume to the renderer.
 	mRenderer->AddViewProp(volActor);
+   
 	// Center camera.
-	mRenderer->ResetCamera();
+	mRenderer->ResetCamera(); // Breaks here with subset visualization
+    
 	// Render.
 	mRenderWindow->Render();
+    
 }
 
 void ViewerWidget::setSelectedData(Points& points, std::vector<unsigned int, std::allocator<unsigned int>> selectionIndices, int chosenDim) {
-        // Get x, y and z size from the points dataset.
-        QVariant xQSize = points.getProperty("xDim");
-        int xSize = xQSize.toInt();
-        QVariant yQSize = points.getProperty("yDim");
-        int ySize = yQSize.toInt();
-        QVariant zQSize = points.getProperty("zDim");
-        int zSize = zQSize.toInt();
-        int dim;
-        
-        // Create bool variable to indicate if data has been selected.
-        std::vector<bool> selected;
-        points.selectedLocalIndices(selectionIndices, selected);
-        // Count the number of selected datapoints.
-        int count = std::count(selected.begin(), selected.end(), true);
+      
 
-        //Array to store selected image data.
+
+
         vtkSmartPointer<vtkFloatArray> dataArray = vtkSmartPointer<vtkFloatArray>::New();
-        //Array to store which part of the image is part of the selection.
-        vtkSmartPointer<vtkIntArray> labelArray = vtkSmartPointer<vtkIntArray>::New();
+        dataArray->SetNumberOfValues(_polyData->GetPointData()->GetScalars()->GetSize());
+        
 
-        // Set the number of values in the dataArray equal to the number of points in the pointsdataset.
-        dataArray->SetNumberOfValues(numPoints);
-        labelArray->SetNumberOfValues(numPoints);
-
-        // Counter for the amount of values that have been read.
-        int j = 0;
-        // Counter for the number of selected datapoints to avoid overflowing selectionIndices vector.
-        int numSelectedLoaded = 0;
-
-        bool firstRead = false;
-
-        auto backgroundValue = points.getValueAt(0);
-
-        // Loop over the number of values in the pointsdata and find minimum values for current dimension to set background color.
-        for (int i = 0; i < numPoints * numDimensions; i++) {
-            // The remainder of the current value divided by the number of dimensions is the current dimension.
-            dim = i % numDimensions;
-            if (chosenDim == dim) {
-                if (!firstRead || points.getValueAt(i) < backgroundValue) {
-                    firstRead = true;
-                    backgroundValue = points.getValueAt(i);
-                }
+        for (int i = 0; i < dataArray->GetSize(); i++)
+        {
+            
+            if(std::binary_search(selectionIndices.begin(), selectionIndices.end(),i))
+            {
+                
+                dataArray->SetValue(i,1);
+                
+            }
+            else
+            {
+                dataArray->SetValue(i, 0);
             }
         }
-
-        // Loop over the number of values in the pointsdata and write values into the dataArray if the current dimension  equals the chosen dimension and the selected indices.
-        for (int i = 0; i < numPoints * numDimensions; i++) {
-            // The remainder of the current value divided by the number of dimensions is the current dimension.
-            dim = i % numDimensions;
-
-            if (chosenDim == dim) {
-                // Ensure that numSelectedLoaded does not overflow the slectionIndeces vector to avoid a crash.
-                if (numSelectedLoaded != selectionIndices.size()) {
-                    // If the index is equal to the current point in the array.
-                    if (selected[i / numDimensions]) {
-                        
-                        // Write value into the dataArray.
-                        dataArray->SetValue(j, points.getValueAt(i));
-                        labelArray->SetValue(j, 1);
-                        numSelectedLoaded++;
-                    }
-                    else {
-                        // All other indices are non-Object.
-                        dataArray->SetValue(j, backgroundValue);
-                        labelArray->SetValue(j, 0);
-                    }
-                }
-                else {
-                    // All other indices are non-Object.
-                    dataArray->SetValue(j, backgroundValue);
-                    labelArray->SetValue(j, 0);
-                }
-                j++;
-            }
-        }
-
-        // Add scalarData to the imageData object.
+        
+        _polyData->GetPointData()->SetScalars(dataArray);
+        
+        
        
-        _labelMap->GetPointData()->SetScalars(labelArray);
 
         if (selectionIndices.size() == 0) {
             _dataSelected = false;
+            _polyData->GetPointData()->SetScalars(_savedSpeedArray);
         }
         else {
             _dataSelected = true;
+            _polyData->GetPointData()->SetScalars(dataArray);
         }
         // Return the selection imagedata object.   
 }
@@ -447,7 +357,7 @@ vtkSmartPointer<vtkImageData> ViewerWidget::connectedSelection(Points& points,in
     double dataMinimum = _imData->GetScalarRange()[0]+1;
 
     double dataMaximum = _imData->GetScalarRange()[1];
-
+    std::cout << "connectselected" << std::endl;
     auto dataBounds = _imData->GetExtent();
 
     float onePercent = (abs(dataMaximum - dataMinimum))/ 100;
@@ -482,8 +392,8 @@ vtkSmartPointer<vtkImageData> ViewerWidget::connectedSelection(Points& points,in
     return _imData;
 }
 
-void ViewerWidget::setSelectedCell(int cellID, int *xyz) {
-    _selectedCell = cellID;   
-    _selectedCellCoordinate = xyz;
-    _Flow4DViewerPlugin.getRendererSettingsAction().getSelectedPointsAction().getPositionAction().changeValue(xyz);
-}
+//void ViewerWidget::setSelectedCell(int cellID, int *xyz) {
+//    _selectedCell = cellID;   
+//    _selectedCellCoordinate = xyz;
+//    _Flow4DViewerPlugin.getRendererSettingsAction().getSelectedPointsAction().getPositionAction().changeValue(xyz);
+//}

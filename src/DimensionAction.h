@@ -32,12 +32,12 @@ public:
 
 public: /** Action getters */
 
-    DimensionPickerAction& getDimensionPickerAction() { return _dimensionAction; }
+    OptionAction& getSelectedDataAction() { return _selectedDataAction; }
 
 protected:
     RendererSettingsAction& _rendererSettingsAction;        /** Reference to renderer settings action */
     ViewerWidget* _viewerWidget;                            /** Pointer to the viewerWidget*/
+    OptionAction _selectedDataAction;                         /** Action to pick the current data dimension*/
     
-    DimensionPickerAction       _dimensionAction;           /** Action to pick the current dimension*/
     
 };

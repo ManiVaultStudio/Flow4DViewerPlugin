@@ -33,13 +33,13 @@ public:
    
 public: /** Action getters */
 
-    OptionAction& getBackgroundShowAction() { return  _backgroundShowAction; }
-    //ColorMapAction& getColorMapAction() { return  _colorMapAction; }
-    //ToggleAction& getShadingAction() { return  _shadingEnableAction; }
-    //
-    DecimalAction& getBackgroundAlphaAction() { return _backgroundAlphaAction; }
-    OptionAction& getSelectionAlphaAction() { return  _selectionAlphaAction; }
-    PositionAction& getPositionAction() { return _positionAction; }
+    //OptionAction& getBackgroundShowAction() { return  _backgroundShowAction; }
+    ////ColorMapAction& getColorMapAction() { return  _colorMapAction; }
+    ////ToggleAction& getShadingAction() { return  _shadingEnableAction; }
+    ////
+    //DecimalAction& getBackgroundAlphaAction() { return _backgroundAlphaAction; }
+    //OptionAction& getSelectionAlphaAction() { return  _selectionAlphaAction; }
+    //PositionAction& getPositionAction() { return _positionAction; }
     TriggerAction& getSelectPointAction() { return  _selectPointAction; }
     ThresholdAction& getThresholdAction() { return _thresholdAction; }
 
@@ -51,16 +51,16 @@ public: /** Action getters */
 
 protected:
     RendererSettingsAction&     _rendererSettingsAction;        /** Reference to renderer settings action */
-    OptionAction                _backgroundShowAction;      /** Option menu for selecting interpolation mode*/
+    //OptionAction                _backgroundShowAction;      /** Option menu for selecting interpolation mode*/
     //ColorMapAction              _colorMapAction;                 /** Color map Action */
     //ToggleAction                _shadingEnableAction;      /** Option menu for selecting interpolation mode*/
     //
-    DecimalAction                _backgroundAlphaAction;               /** Input box for ambient color constant.*/
-    OptionAction                    _selectionAlphaAction;
+    //DecimalAction                _backgroundAlphaAction;               /** Input box for ambient color constant.*/
+    //OptionAction                    _selectionAlphaAction;
     //DecimalAction                _diffuseConstantAction;               /** Input box for diffuse color constant.*/
     //DecimalAction                _specularConstantAction;               /** Input box for specular color constant.*/
     TriggerAction                   _selectPointAction;                 /** Activate point selection*/
-    PositionAction                  _positionAction;
+    //PositionAction                  _positionAction;
     ThresholdAction                 _thresholdAction;
 
 };

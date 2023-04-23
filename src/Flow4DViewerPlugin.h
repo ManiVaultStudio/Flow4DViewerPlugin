@@ -113,7 +113,7 @@ private:
     RendererSettingsAction              _rendererSettingsAction;    /** The options menu on the side of the viewer*/
     ViewerWidget*                       _viewerWidget;              /** The image viewer widget */
     vtkSmartPointer<vtkImageData>       _imageData;                 /** The full data loaded into the viewer */
-    vtkSmartPointer<vtkPlaneCollection> _planeCollection;           /** The collection of clipping planes used for the slicing action*/
+    
     Dataset<Points>                     _points;                    /** Declare a points dataset reference */
     QStringList                         _pointsDatasets;            /** Point datasets loaded in HDPS */
     hdps::gui::DropWidget*              _dropWidget;                /** Widget for dropping data */
