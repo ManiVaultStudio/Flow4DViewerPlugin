@@ -313,29 +313,22 @@ void ViewerWidget::renderData( vtkSmartPointer<vtkImageData> imData, std::string
 }
 
 void ViewerWidget::setSelectedData(Points& points, std::vector<unsigned int, std::allocator<unsigned int>> selectionIndices, int chosenDim) {
-      
-
-
-
+     
         vtkSmartPointer<vtkFloatArray> dataArray = vtkSmartPointer<vtkFloatArray>::New();
         dataArray->SetNumberOfValues(_polyData->GetPointData()->GetScalars()->GetSize());
-        
-
         for (int i = 0; i < dataArray->GetSize(); i++)
         {
-            
-            if(std::binary_search(selectionIndices.begin(), selectionIndices.end(),i))
-            {
-                
-                dataArray->SetValue(i,1);
-                
-            }
-            else
-            {
-                dataArray->SetValue(i, 0);
-            }
+            dataArray->SetValue(i, 0);
         }
         
+        int count = 0;
+        for (int i = 0; i < selectionIndices.size(); i++)
+        {
+            dataArray->SetValue(selectionIndices[i], 1);
+            
+        }
+
+
         _polyData->GetPointData()->SetScalars(dataArray);
         
         

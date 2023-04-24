@@ -292,7 +292,7 @@ void Flow4DViewerPlugin::init()
             }
 
             const auto backGroundValue = _imageData->GetScalarRange()[0];
-            std::cout << selectionSet->indices.size() << std::endl;
+
             
             // create a selectiondata imagedata object with 0 values for all non selected items
             _viewerWidget->setSelectedData(*_points, selectionSet->indices, chosenDimension);
