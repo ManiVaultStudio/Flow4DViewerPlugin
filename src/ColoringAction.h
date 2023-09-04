@@ -1,7 +1,7 @@
 #pragma once
 
 #include "actions/GroupAction.h"
-#include "actions/ColorMapAction.h"
+#include "actions/ColorMap1DAction.h"
 #include "actions/OptionAction.h"
 
 
@@ -26,18 +26,18 @@ public:
      * Constructor
      * @param rendererSettingsAction Reference to renderer settings action
      */
-    ColoringAction(RendererSettingsAction& rendererSettingsAction);
+    ColoringAction(RendererSettingsAction& rendererSettingsAction, const QString& title);
    
 public: /** Action getters */
 
     
-    ColorMapAction& getColorMapAction() { return  _colorMapAction; }
+    ColorMap1DAction& getColorMapAction() { return  _colorMapAction; }
     
 
 
 protected:
     RendererSettingsAction&     _rendererSettingsAction;        /** Reference to renderer settings action */
    
-    ColorMapAction              _colorMapAction;                 /** Color map Action */
+    ColorMap1DAction              _colorMapAction;                 /** Color map Action */
     
 };

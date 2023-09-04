@@ -8,8 +8,8 @@
 
 using namespace hdps;
 
-ColoringAction::ColoringAction(RendererSettingsAction& rendererSettingsAction) :
-    GroupAction(reinterpret_cast<QObject*>(&rendererSettingsAction)),
+ColoringAction::ColoringAction(RendererSettingsAction& rendererSettingsAction, const QString& title) :
+    GroupAction(reinterpret_cast<QObject*>(&rendererSettingsAction), title),
     _rendererSettingsAction(rendererSettingsAction),
     
     
@@ -20,5 +20,6 @@ ColoringAction::ColoringAction(RendererSettingsAction& rendererSettingsAction) :
 
 {
     setText("Coloring parameters");
+    addAction(&_colorMapAction);
 
 }

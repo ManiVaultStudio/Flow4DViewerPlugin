@@ -5,7 +5,7 @@
 #include <QResizeEvent>
 /**  HDPS headers*/
 #include <Dataset.h>
-#include <PointData.h>
+#include <PointData/PointData.h>
 /** VTk headers*/
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkRenderer.h>

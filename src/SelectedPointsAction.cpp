@@ -10,8 +10,8 @@
 
 using namespace hdps;
 
-SelectedPointsAction::SelectedPointsAction(RendererSettingsAction& rendererSettingsAction) :
-    GroupAction(reinterpret_cast<QObject*>(&rendererSettingsAction)),
+SelectedPointsAction::SelectedPointsAction(RendererSettingsAction& rendererSettingsAction, const QString& title) :
+    GroupAction(reinterpret_cast<QObject*>(&rendererSettingsAction), title),
     _rendererSettingsAction(rendererSettingsAction),
     
     // color interpolation options with default nearest neighbor interpolations
@@ -20,7 +20,7 @@ SelectedPointsAction::SelectedPointsAction(RendererSettingsAction& rendererSetti
     //_selectionAlphaAction(this, "Selection alpha", {"Opaque","Use transfer function"}, "Opaque", "Opaque"),
     _selectPointAction(this, "Select point"),
     //_positionAction(*this),
-    _thresholdAction(*this)
+    _thresholdAction(*this, title)
 
 
     //decimal range action
@@ -28,4 +28,6 @@ SelectedPointsAction::SelectedPointsAction(RendererSettingsAction& rendererSetti
 {
     
     setText("Selected data options");
+    addAction(&_selectPointAction);
+    addAction(&_thresholdAction);
 }
