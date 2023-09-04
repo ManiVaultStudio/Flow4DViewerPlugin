@@ -33,7 +33,7 @@ public:
      * Constructor
      * @param generalAction Reference to general action
      */
-    PositionAction(SelectedPointsAction& selectedPointsAction);
+    PositionAction(SelectedPointsAction& selectedPointsAction, const QString& title);
     void changeValue(int *xyz);
 
 signals:

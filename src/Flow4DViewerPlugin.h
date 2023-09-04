@@ -12,10 +12,11 @@
 #include <widgets/DropWidget.h>
 #include <RendererSettingsAction.h>
 //#include <Transfer/TransferFunctionControlAction.h>
-#include <PointData.h>
+#include <PointData/PointData.h>
 /** VTK headers*/
 #include <vtkPlane.h>
 #include <vtkPlaneCollection.h>
+#include <common.h>
 
 using hdps::plugin::ViewPluginFactory;
 using hdps::plugin::ViewPlugin;
@@ -75,7 +76,7 @@ public: // Miscellaneous
 
     /** Returns the render settings action*/
     RendererSettingsAction& getRendererSettingsAction() {
-        return _rendererSettingsAction;
+        return *_rendererSettingsAction;
     }
 
 
@@ -110,7 +111,7 @@ signals:
     void pointsDatasetsChanged(QStringList pointsDatasets);
 
 private:
-    RendererSettingsAction              _rendererSettingsAction;    /** The options menu on the side of the viewer*/
+    RendererSettingsAction*              _rendererSettingsAction;    /** The options menu on the side of the viewer*/
     ViewerWidget*                       _viewerWidget;              /** The image viewer widget */
     vtkSmartPointer<vtkImageData>       _imageData;                 /** The full data loaded into the viewer */
     

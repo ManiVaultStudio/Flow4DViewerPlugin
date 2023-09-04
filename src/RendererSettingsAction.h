@@ -26,7 +26,7 @@ public:
      * Constructor
      * @param parent Pointer to parent object
      */
-    RendererSettingsAction(QObject* parent, ViewerWidget* viewerWidget);
+    RendererSettingsAction(QObject* parent, ViewerWidget* viewerWidget, const QString& title);
 
 public: /** Action getters */
     DimensionAction& getDimensionAction() { return _dimensionAction; }

@@ -9,16 +9,17 @@
 
 using namespace hdps;
 
-DimensionAction::DimensionAction(RendererSettingsAction& rendererSettingsAction, ViewerWidget* viewerWidget) :
-    GroupAction(reinterpret_cast<QObject*>(&rendererSettingsAction)),
+DimensionAction::DimensionAction(RendererSettingsAction& rendererSettingsAction, ViewerWidget* viewerWidget, const QString& title) :
+    GroupAction(reinterpret_cast<QObject*>(&rendererSettingsAction), title),
     _rendererSettingsAction(rendererSettingsAction),
 
     _viewerWidget(nullptr),
-    _selectedDataAction(this, "Select data", { "Flow Speed","Line Index", "Time Interval"}, "Flow Speed", "Flow Speed")
+    
+    _selectedDataAction(this, "Select data", { "Flow Speed","Line Index", "Time Interval"}, "Flow Speed")
     
 {
     setText("Data value selecter");
-    
+    addAction(&_selectedDataAction);
     _viewerWidget = viewerWidget;
 
     

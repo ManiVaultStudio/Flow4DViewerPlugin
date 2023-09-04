@@ -29,7 +29,7 @@ public:
      * Constructor
      * @param rendererSettingsAction Reference to renderer settings action
      */
-    SelectedPointsAction(RendererSettingsAction& rendererSettingsAction);
+    SelectedPointsAction(RendererSettingsAction& rendererSettingsAction, const QString& title);
    
 public: /** Action getters */
 

@@ -9,15 +9,15 @@
 
 using namespace hdps;
 
-SlicingAction::SlicingAction(RendererSettingsAction& rendererSettingsAction,ViewerWidget* viewerWidget) :
-    GroupAction(reinterpret_cast<QObject*>(&rendererSettingsAction)),
+SlicingAction::SlicingAction(RendererSettingsAction& rendererSettingsAction,ViewerWidget* viewerWidget, const QString& title) :
+    GroupAction(reinterpret_cast<QObject*>(&rendererSettingsAction), title),
     _rendererSettingsAction(rendererSettingsAction),
     _xAxisEnabledAction(this, "x-axis enabled"),
-    _xAxisPositionAction(this, "x-axis position", 0.0f, 100.0f, 0.0f, 0.0f, 0),
+    _xAxisPositionAction(this, "x-axis position", 0.0f, 100.0f, 0.0f, 0),
     _yAxisEnabledAction(this, "y-axis enabled"),
-    _yAxisPositionAction(this, "y-axis position", 0.0f, 100.0f, 0.0f, 0.0f, 0),
+    _yAxisPositionAction(this, "y-axis position", 0.0f, 100.0f, 0.0f, 0),
     _zAxisEnabledAction(this, "z-axis enabled"),
-    _zAxisPositionAction(this, "z-axis position", 0.0f, 100.0f, 0.0f, 0.0f, 0)
+    _zAxisPositionAction(this, "z-axis position", 0.0f, 100.0f, 0.0f, 0)
 {
     setText("Slicing parameters");
 
