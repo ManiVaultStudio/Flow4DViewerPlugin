@@ -11,7 +11,7 @@
 #include <widgets/DropWidget.h>
 
 #include <actions/PluginTriggerAction.h>
-
+#include <DatasetsMimeData.h>
 /** HDPS headers*/
 #include <PointData/PointData.h>
 #include <ClusterData/ClusterData.h>
@@ -22,6 +22,7 @@
 
 using namespace hdps;
 using namespace hdps::gui;
+using namespace hdps::util;
 
 Flow4DViewerPlugin::Flow4DViewerPlugin(const PluginFactory* factory) :
     ViewPlugin(factory),
@@ -31,9 +32,11 @@ Flow4DViewerPlugin::Flow4DViewerPlugin(const PluginFactory* factory) :
     _imageData(vtkSmartPointer<vtkImageData>::New()),
     
     _points(),
+
     _pointsParent(),
     _pointsColorCluster(),
     _rendererSettingsAction(this,_viewerWidget),
+
     _dropWidget(nullptr),
     
     // boolian to indicate if data is loaded for selection visualization purposes
@@ -52,7 +55,10 @@ Flow4DViewerPlugin::Flow4DViewerPlugin(const PluginFactory* factory) :
     _shadingParameters(std::vector<double>{0.9,0.2,0.1}),
     // string variable to keep track of the interpolation option with default being Nearest Neighbour
     _interpolationOption("NN")
-{}
+{
+    getWidget().setContextMenuPolicy(Qt::CustomContextMenu);
+    getWidget().setFocusPolicy(Qt::ClickFocus);
+}
 
 void Flow4DViewerPlugin::init()
 {
@@ -60,27 +66,28 @@ void Flow4DViewerPlugin::init()
     _viewerWidget = new ViewerWidget(*this);
    // Add the dropwidget to the layout.
     _dropWidget = new DropWidget(_viewerWidget);
+    _rendererSettingsAction = new RendererSettingsAction(this, _viewerWidget, "Primary Toolbar");
     
     
     // Create the layout.
     auto layout = new QHBoxLayout();
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
-    layout->addWidget(_viewerWidget, 4);
+    layout->addWidget(_viewerWidget, 1);
 
-    auto settingsLayout = new QVBoxLayout();
+    /*auto settingsLayout = new QVBoxLayout();
 
     settingsLayout->addWidget(_rendererSettingsAction.createWidget(&getWidget()));
     settingsLayout->setContentsMargins(6, 6, 6, 6);
 
-    // Add the actions.
+     //Add the actions.
     GroupsAction::GroupActions groupActions;
     groupActions << &_rendererSettingsAction.getDimensionAction() << &_rendererSettingsAction.getColoringAction() << &_rendererSettingsAction.getSelectedPointsAction();
     _rendererSettingsAction.setGroupActions(groupActions);
 
     layout->addLayout(settingsLayout, 1);
 
-    getWidget().setAutoFillBackground(true);
+    getWidget().setAutoFillBackground(true);*/
     getWidget().setLayout(layout);
     
     // Set the drop indicator widget (the widget that indicates that the view is eligible for data dropping)
@@ -92,15 +99,18 @@ void Flow4DViewerPlugin::init()
         // A drop widget can contain zero or more drop regions
         DropWidget::DropRegions dropRegions;
 
-        const auto mimeText = mimeData->text();
-        const auto tokens = mimeText.split("\n");
+        const auto datasetsMimeData = dynamic_cast<const DatasetsMimeData*>(mimeData);
 
-        if (tokens.count() == 1)
+        if (datasetsMimeData == nullptr)
             return dropRegions;
 
-        // Gather information to generate appropriate drop regions
-        const auto datasetGuid = tokens[1];
-        const auto dataType = DataType(tokens[2]);
+        if (datasetsMimeData->getDatasets().count() > 1)
+            return dropRegions;
+
+        const auto dataset = datasetsMimeData->getDatasets().first();
+        const auto datasetGuiName = dataset->text();
+        const auto datasetId = dataset->getId();
+        const auto dataType = dataset->getDataType();
         const auto dataTypes = DataTypes({ PointType });
 
         // Visually indicate if the dataset is of the wrong data type and thus cannot be dropped
@@ -108,9 +118,11 @@ void Flow4DViewerPlugin::init()
             dropRegions << new DropWidget::DropRegion(this, "Incompatible data", "", "This type of data is not supported", false);
         }
         else {
+            
             // Accept points datasets drag and drop
             if (dataType == PointType) {
-                const auto candidateDataset = getCore()->requestDataset<Points>(datasetGuid);
+                
+                const auto candidateDataset = getCore()->requestDataset<Points>(datasetId);
                 //const auto candidateDatasetName = candidateDataset.getName();
                 const auto description = QString("Visualize %1 as voxels").arg(candidateDataset->getGuiName());
 
@@ -130,9 +142,11 @@ void Flow4DViewerPlugin::init()
                     else {
                         dropRegions << new DropWidget::DropRegion(this, "Voxels", description, "cube", true, [this, candidateDataset]() {
                             _points = candidateDataset;
+
                             if (_points->getDataHierarchyItem().hasParent()) {
                                 _pointsParent = _points->getParent();
                             }
+
                         });
                         //if (candidateDataset->getNumPoints() == _points->getNumPoints()) {
 
@@ -194,7 +208,7 @@ void Flow4DViewerPlugin::init()
     // Respond when the name of the dataset in the dataset reference changes
     connect(&_points, &Dataset<Points>::changed, this, [this, layout]() {
         // Get current dimension index
-        std::string dimensionName = _rendererSettingsAction.getDimensionAction().getSelectedDataAction().getCurrentText().toStdString(); // get the currently selected chosen dimension as indicated by the dimensionchooser in the options menu
+        std::string dimensionName = _rendererSettingsAction->getDimensionAction().getSelectedDataAction().getCurrentText().toStdString(); // get the currently selected chosen dimension as indicated by the dimensionchooser in the options menu
         int chosenDimension = 3;
         if (dimensionName == "Flow Speed")
         {
@@ -219,7 +233,7 @@ void Flow4DViewerPlugin::init()
             // Pass the dataset and chosen dimension to the viewerwidget which initiates the data and renders it. returns the imagedata object for future operations.
             _imageData = _viewerWidget->setData(*_points, chosenDimension, boundsArray, _colorMap);
         
-
+            
         //Initial render.
         _viewerWidget->renderData( _imageData, _interpolationOption, _colorMap, _shadingEnabled, _shadingParameters);
 
@@ -228,6 +242,7 @@ void Flow4DViewerPlugin::init()
         // notify that data is indeed loaded into the widget
         _dataLoaded = true;
     });
+    addDockingAction(_rendererSettingsAction, nullptr, DockAreaFlag::Left, true, AutoHideLocation::Right, QSize(300, 300));
 
     // Dropdown menu for chosen dimension.
     connect(&this->getRendererSettingsAction().getDimensionAction().getSelectedDataAction(), &OptionAction::currentTextChanged, this, [this](const QString& interpolType) {
@@ -397,12 +412,14 @@ void Flow4DViewerPlugin::init()
         float upperThreshold = this->getRendererSettingsAction().getSelectedPointsAction().getDecimalRangeAction().getMaximum();
         int boundsArray[2] = { lowerThreshold,upperThreshold };
         //_points->setSelectionIndices();
+
         // Get the selection set that changed
         const auto& selectionSet = _points->getSelection<Points>();
 
         // Get ChosenDimension
         
         std::string dimensionName = _rendererSettingsAction.getDimensionAction().getSelectedDataAction().getCurrentText().toStdString(); // get the currently selected chosen dimension as indicated by the dimensionchooser in the options menu
+
         int chosenDimension = 3;
         if (dimensionName == "Flow Speed")
         {
@@ -454,7 +471,7 @@ void Flow4DViewerPlugin::init()
             const auto& selectionSet = _points->getSelection<Points>();
 
             // Get ChosenDimension
-            std::string dimensionName = _rendererSettingsAction.getDimensionAction().getSelectedDataAction().getCurrentText().toStdString(); // get the currently selected chosen dimension as indicated by the dimensionchooser in the options menu
+            std::string dimensionName = _rendererSettingsAction->getDimensionAction().getSelectedDataAction().getCurrentText().toStdString(); // get the currently selected chosen dimension as indicated by the dimensionchooser in the options menu
             int chosenDimension = 3;
             if (dimensionName == "Flow Speed")
             {

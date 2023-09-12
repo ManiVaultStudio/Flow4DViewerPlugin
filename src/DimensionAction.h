@@ -7,6 +7,9 @@
 
 
 
+#include <PointData/DimensionPickerAction.h>
+
+
 using namespace hdps::gui;
 
 class RendererSettingsAction;
@@ -29,7 +32,7 @@ public:
      * Constructor
      * @param rendererSettingsAction Reference to renderer settings action
      */
-    DimensionAction(RendererSettingsAction& rendererSettingsAction, ViewerWidget* viewerWidet);
+    DimensionAction(RendererSettingsAction& rendererSettingsAction, ViewerWidget* viewerWidet, const QString& title);
 
 public: /** Action getters */
 

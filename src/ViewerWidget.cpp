@@ -15,7 +15,9 @@
 /** HDPS headers */
 #include <Dataset.h>
 #include <PointData/PointData.h>
+
 #include <ClusterData/ClusterData.h>
+
 /** QT headers */
 #include <qwidget.h>
 #include <qdialog.h>

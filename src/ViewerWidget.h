@@ -6,7 +6,9 @@
 /**  HDPS headers*/
 #include <Dataset.h>
 #include <PointData/PointData.h>
+
 #include <ClusterData/ClusterData.h>
+
 /** VTk headers*/
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkRenderer.h>

@@ -6,8 +6,8 @@
 
 using namespace hdps;
 
-PositionAction::PositionAction(SelectedPointsAction& SelectedPointsAction) :
-    WidgetAction(reinterpret_cast<QObject*>(&SelectedPointsAction)),
+PositionAction::PositionAction(SelectedPointsAction& SelectedPointsAction, const QString& title) :
+    WidgetAction(reinterpret_cast<QObject*>(&SelectedPointsAction), title),
     _selectedPointsAction(SelectedPointsAction),
     _xAction(this, "X position", -100000.0f, 100000.0f, 0.0f, 0.0f),
     _yAction(this, "Y position", -100000.0f, 100000.0f, 0.0f, 0.0f),

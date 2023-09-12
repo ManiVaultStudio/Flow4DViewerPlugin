@@ -27,7 +27,7 @@ public:
      * Constructor
      * @param rendererSettingsAction Reference to renderer settings action
      */
-    SlicingAction(RendererSettingsAction& rendererSettingsAction, ViewerWidget* viewerWidet);
+    SlicingAction(RendererSettingsAction& rendererSettingsAction, ViewerWidget* viewerWidet, const QString& title);
 
 public: /** Action getters */
 

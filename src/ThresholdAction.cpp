@@ -5,8 +5,8 @@
 
 using namespace hdps;
 
-ThresholdAction::ThresholdAction(SelectedPointsAction& SelectedPointsAction) :
-    WidgetAction(reinterpret_cast<QObject*>(&SelectedPointsAction)),
+ThresholdAction::ThresholdAction(SelectedPointsAction& SelectedPointsAction, const QString& title) :
+    WidgetAction(reinterpret_cast<QObject*>(&SelectedPointsAction), title),
     _selectedPointsAction(SelectedPointsAction),
     _lowerAction(this, "Lower Threshold", -100000.0f, 100000.0f, 0.0f, 0.0f),
     _upperAction(this, "UpperThreshold", -100000.0f, 100000.0f, 0.0f, 0.0f)

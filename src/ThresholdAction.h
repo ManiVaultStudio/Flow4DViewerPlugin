@@ -35,7 +35,7 @@ public:
      * Constructor
      * @param generalAction Reference to general action
      */
-    ThresholdAction(SelectedPointsAction& selectedPointsAction);
+    ThresholdAction(SelectedPointsAction& selectedPointsAction, const QString& title);
 
 signals:
 
