@@ -33,11 +33,13 @@ public: /** Action getters */
     
     ColorMap1DAction& getColorMapAction() { return  _colorMapAction; }
     
+    
 
 
 protected:
     RendererSettingsAction&     _rendererSettingsAction;        /** Reference to renderer settings action */
    
     ColorMap1DAction              _colorMapAction;                 /** Color map Action */
+    
     
 };

@@ -6,6 +6,9 @@
 /**  HDPS headers*/
 #include <Dataset.h>
 #include <PointData/PointData.h>
+
+#include <ClusterData/ClusterData.h>
+
 /** VTk headers*/
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkRenderer.h>
@@ -47,7 +50,8 @@ public:
     *   Next to the points data, an array containing the selected indices is also needed.
     *   The chosenDim input is an integer indicating which dimension is to be visualized, starting from 0.
     */
-   void setSelectedData(Points& points, std::vector<unsigned int, std::allocator<unsigned int>> selectionIndices, int chosenDim);
+   void setSelectedData(Points& points, std::vector<unsigned int, std::allocator<unsigned int>> selectionIndices, int chosenDim, int boundsArray[2]);
+   void setSelectedDataTime(Points& points, std::vector<unsigned int, std::allocator<unsigned int>> selectionIndices, int chosenDim, int boundsArray[2] );
 
    //void setSelectedCell(int cellID, int *xyz);
    /*int* getSelectedCellCoordinate() {
@@ -59,6 +63,8 @@ public:
     void resizeEvent(QResizeEvent* e) override {
         _openGLWidget->setFixedSize(e->size());
     }
+
+    void setClusterColor(const Dataset<Clusters>& clusterData);
     
 private:
     QVTKOpenGLNativeWidget* _openGLWidget;                          /** OpenGl Widget for rendering*/
@@ -72,6 +78,8 @@ private:
     vtkSmartPointer<vtkImageData> _labelMap;                          /** imagedata indicating the label wether data is part of selection or not*/
     vtkSmartPointer<vtkImageData> _imData;
     vtkSmartPointer<vtkFloatArray> _savedSpeedArray;
+    Dataset<Clusters> _clusterData;
+    bool _clusterLoaded;
     bool _dataSelected;                                              /** Boolian to indicate wether or not data is selected*/
     int _xSize;
     int _ySize;
@@ -81,6 +89,7 @@ private:
     bool _thresholded;
     float _upperThreshold;
     float _lowerThreshold;
+    bool _firstRender;
     
 
 protected:

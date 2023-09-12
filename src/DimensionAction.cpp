@@ -14,9 +14,9 @@ DimensionAction::DimensionAction(RendererSettingsAction& rendererSettingsAction,
     _rendererSettingsAction(rendererSettingsAction),
 
     _viewerWidget(nullptr),
-    
+
     _selectedDataAction(this, "Select data", { "Flow Speed","Line Index", "Time Interval"}, "Flow Speed")
-    
+
 {
     setText("Data value selecter");
     addAction(&_selectedDataAction);

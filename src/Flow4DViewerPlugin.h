@@ -64,6 +64,8 @@ public: // Inherited from ViewPlugin
 
     void setSelectionPosition(double x, double y, double z);
 
+    
+
     /** Returns a pointer to the core interface */
     hdps::CoreInterface* core() { return _core; }
 
@@ -114,7 +116,8 @@ private:
     RendererSettingsAction*              _rendererSettingsAction;    /** The options menu on the side of the viewer*/
     ViewerWidget*                       _viewerWidget;              /** The image viewer widget */
     vtkSmartPointer<vtkImageData>       _imageData;                 /** The full data loaded into the viewer */
-    
+    Dataset<Points>                     _pointsParent;                    /** Declare a points dataset reference */
+    Dataset<Clusters>                     _pointsColorCluster;                    /** Declare a points dataset reference */
     Dataset<Points>                     _points;                    /** Declare a points dataset reference */
     QStringList                         _pointsDatasets;            /** Point datasets loaded in HDPS */
     hdps::gui::DropWidget*              _dropWidget;                /** Widget for dropping data */

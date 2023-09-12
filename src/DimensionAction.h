@@ -3,8 +3,12 @@
 #include "actions/GroupAction.h"
 #include "actions/ToggleAction.h"
 #include "actions/DecimalAction.h"
+#include "actions/OptionAction.h"
+
+
 
 #include <PointData/DimensionPickerAction.h>
+
 
 using namespace hdps::gui;
 

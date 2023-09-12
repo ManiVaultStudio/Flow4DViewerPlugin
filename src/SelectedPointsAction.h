@@ -5,7 +5,7 @@
 #include "actions/OptionAction.h"
 #include "PositionAction.h"
 #include "ThresholdAction.h"
-
+#include <actions/DecimalRangeAction.h>
 
 
 using namespace hdps::gui;
@@ -41,8 +41,11 @@ public: /** Action getters */
     //OptionAction& getSelectionAlphaAction() { return  _selectionAlphaAction; }
     //PositionAction& getPositionAction() { return _positionAction; }
     TriggerAction& getSelectPointAction() { return  _selectPointAction; }
-    ThresholdAction& getThresholdAction() { return _thresholdAction; }
-
+    TriggerAction& getSelectPointActionSpeed() { return  _selectPointActionSpeed; }
+    TriggerAction& getSelectPointActionTime() { return  _selectPointActionTime; }
+    TriggerAction& getSelectPointActionSpeedTime() { return  _selectPointActionSpeedTime; }
+   
+    DecimalRangeAction& getDecimalRangeAction() { return _thresholdActionTest; }
     
 
     //DecimalAction& getDiffuseAction() { return _diffuseConstantAction; }
@@ -60,7 +63,11 @@ protected:
     //DecimalAction                _diffuseConstantAction;               /** Input box for diffuse color constant.*/
     //DecimalAction                _specularConstantAction;               /** Input box for specular color constant.*/
     TriggerAction                   _selectPointAction;                 /** Activate point selection*/
+    TriggerAction                   _selectPointActionSpeed;                 /** Activate point selection*/
+    TriggerAction                   _selectPointActionTime;                 /** Activate point selection*/
+    TriggerAction                   _selectPointActionSpeedTime;                 /** Activate point selection*/
     //PositionAction                  _positionAction;
-    ThresholdAction                 _thresholdAction;
+    
+    DecimalRangeAction              _thresholdActionTest;
 
 };
