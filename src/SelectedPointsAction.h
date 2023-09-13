@@ -45,7 +45,7 @@ public: /** Action getters */
     TriggerAction& getSelectPointActionTime() { return  _selectPointActionTime; }
     TriggerAction& getSelectPointActionSpeedTime() { return  _selectPointActionSpeedTime; }
    
-    DecimalRangeAction& getDecimalRangeAction() { return _thresholdActionTest; }
+    DecimalRangeAction& getDecimalRangeAction() { return _thresholdAction; }
     
 
     //DecimalAction& getDiffuseAction() { return _diffuseConstantAction; }
@@ -68,6 +68,6 @@ protected:
     TriggerAction                   _selectPointActionSpeedTime;                 /** Activate point selection*/
     //PositionAction                  _positionAction;
     
-    DecimalRangeAction              _thresholdActionTest;
+    DecimalRangeAction              _thresholdAction;
 
 };

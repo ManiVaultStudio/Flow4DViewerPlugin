@@ -35,7 +35,7 @@ Flow4DViewerPlugin::Flow4DViewerPlugin(const PluginFactory* factory) :
 
     _pointsParent(),
     _pointsColorCluster(),
-    _rendererSettingsAction(this,_viewerWidget),
+    _rendererSettingsAction(),
 
     _dropWidget(nullptr),
     
@@ -166,10 +166,10 @@ void Flow4DViewerPlugin::init()
 
 
             // Get clusters dataset from the core
-            auto candidateDataset = _core->requestDataset<Clusters>(datasetGuid);
+            auto candidateDataset = _core->requestDataset<Clusters>(datasetId);
 
 
-            // Establish drop region description
+            // Establish drop region descriptio
             const auto description = QString("Color points by %1").arg(candidateDataset->getGuiName());
 
             // Only allow user to color by clusters when there is a positions dataset loaded
@@ -412,13 +412,13 @@ void Flow4DViewerPlugin::init()
         float upperThreshold = this->getRendererSettingsAction().getSelectedPointsAction().getDecimalRangeAction().getMaximum();
         int boundsArray[2] = { lowerThreshold,upperThreshold };
         //_points->setSelectionIndices();
-
+        
         // Get the selection set that changed
         const auto& selectionSet = _points->getSelection<Points>();
 
         // Get ChosenDimension
         
-        std::string dimensionName = _rendererSettingsAction.getDimensionAction().getSelectedDataAction().getCurrentText().toStdString(); // get the currently selected chosen dimension as indicated by the dimensionchooser in the options menu
+        std::string dimensionName = _rendererSettingsAction->getDimensionAction().getSelectedDataAction().getCurrentText().toStdString(); // get the currently selected chosen dimension as indicated by the dimensionchooser in the options menu
 
         int chosenDimension = 3;
         if (dimensionName == "Flow Speed")

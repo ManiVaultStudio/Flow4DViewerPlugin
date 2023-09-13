@@ -417,6 +417,7 @@ void ViewerWidget::setSelectedData(Points& points, std::vector<unsigned int, std
         else {
             _dataSelected = true;
             _polyData->GetPointData()->SetScalars(dataArray);
+            
         }
         // Return the selection imagedata object.   
 }

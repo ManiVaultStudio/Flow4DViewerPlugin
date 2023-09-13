@@ -25,8 +25,7 @@ SelectedPointsAction::SelectedPointsAction(RendererSettingsAction& rendererSetti
     _selectPointActionSpeedTime(this, "export xyzspeedtime"),
     //_positionAction(*this),
 
-    _thresholdAction(*this, title)
-
+    _thresholdAction(this, "select timepoints", { 0,153 }, { 0,153 },0)
 
 
     //decimal range action
