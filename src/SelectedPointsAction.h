@@ -44,6 +44,8 @@ public: /** Action getters */
     TriggerAction& getSelectPointActionSpeed() { return  _selectPointActionSpeed; }
     TriggerAction& getSelectPointActionTime() { return  _selectPointActionTime; }
     TriggerAction& getSelectPointActionSpeedTime() { return  _selectPointActionSpeedTime; }
+    TriggerAction& getSelectPointActionDerivative() { return  _selectPointActionDerivative; }
+    TriggerAction& getSelectPointActionDerivativeTime() { return  _selectPointActionDerivativeTime; }
    
     DecimalRangeAction& getDecimalRangeAction() { return _thresholdAction; }
     
@@ -66,6 +68,8 @@ protected:
     TriggerAction                   _selectPointActionSpeed;                 /** Activate point selection*/
     TriggerAction                   _selectPointActionTime;                 /** Activate point selection*/
     TriggerAction                   _selectPointActionSpeedTime;                 /** Activate point selection*/
+    TriggerAction                   _selectPointActionDerivative;                 /** Activate point selection*/
+    TriggerAction                   _selectPointActionDerivativeTime;                 /** Activate point selection*/
     //PositionAction                  _positionAction;
     
     DecimalRangeAction              _thresholdAction;

@@ -342,6 +342,25 @@ void Flow4DViewerPlugin::init()
         else {
             std::cout << "Unable to open the file." << std::endl;
         }
+    });connect(&this->getRendererSettingsAction().getSelectedPointsAction().getSelectPointActionDerivative(), &TriggerAction::triggered, this, [this]() {
+        std::string xyz = "F:/BME_year2/thesis/VTK/x'y'z'.txt";
+        std::ofstream file(xyz);
+
+        float lowerThreshold = this->getRendererSettingsAction().getSelectedPointsAction().getDecimalRangeAction().getMinimum();
+        float upperThreshold = this->getRendererSettingsAction().getSelectedPointsAction().getDecimalRangeAction().getMaximum();
+
+        if (file.is_open()) {
+            for (int i = lowerThreshold; i <= upperThreshold; i++) {
+                file << "x'" << i << "\n";
+                file << "y'" << i << "\n";
+                file << "z'" << i << "\n";
+            }
+            file.close();
+            std::cout << "File write successful." << std::endl;
+        }
+        else {
+            std::cout << "Unable to open the file." << std::endl;
+        }
     });
     connect(&this->getRendererSettingsAction().getSelectedPointsAction().getSelectPointActionSpeed(), &TriggerAction::triggered, this, [this]() {
         std::string xyzspeed = "F:/BME_year2/thesis/VTK/xyzspeed.txt";
@@ -384,7 +403,28 @@ void Flow4DViewerPlugin::init()
         else {
             std::cout << "Unable to open the file." << std::endl;
         }
-    });connect(&this->getRendererSettingsAction().getSelectedPointsAction().getSelectPointActionSpeedTime(), &TriggerAction::triggered, this, [this]() {
+    });connect(&this->getRendererSettingsAction().getSelectedPointsAction().getSelectPointActionDerivativeTime(), &TriggerAction::triggered, this, [this]() {
+        std::string xyzspeed = "F:/BME_year2/thesis/VTK/x'y'z'time.txt";
+        std::ofstream file(xyzspeed);
+
+        float lowerThreshold = this->getRendererSettingsAction().getSelectedPointsAction().getDecimalRangeAction().getMinimum();
+        float upperThreshold = this->getRendererSettingsAction().getSelectedPointsAction().getDecimalRangeAction().getMaximum();
+
+        if (file.is_open()) {
+            for (int i = lowerThreshold; i <= upperThreshold; i++) {
+                file << "x'" << i << "\n";
+                file << "y'" << i << "\n";
+                file << "z'" << i << "\n";
+                file << "time" << i << "\n";
+            }
+            file.close();
+            std::cout << "File write successful." << std::endl;
+        }
+        else {
+            std::cout << "Unable to open the file." << std::endl;
+        }
+    });
+    connect(&this->getRendererSettingsAction().getSelectedPointsAction().getSelectPointActionSpeedTime(), &TriggerAction::triggered, this, [this]() {
         std::string xyzspeed = "F:/BME_year2/thesis/VTK/xyzspeedtime.txt";
         std::ofstream file(xyzspeed);
 

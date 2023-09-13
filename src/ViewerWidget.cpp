@@ -194,7 +194,7 @@ vtkSmartPointer<vtkImageData> ViewerWidget::setData(Points& data, int chosenDim,
     std::cout << data.getProperty("lineSize").toInt() << std::endl;
     if (numDimensions>10) {
         std::cout << "here" << std::endl;
-        while (iterator / 7 < numPoints) {
+        while (iterator / 10 < numPoints) {
             vtkSmartPointer<vtkPolyLine> polyLine = vtkSmartPointer<vtkPolyLine>::New();
             float currentLineIndex = data.getValueAt(iterator + 4);//lineIndex
             float nextLineIndex = currentLineIndex;
@@ -215,7 +215,7 @@ vtkSmartPointer<vtkImageData> ViewerWidget::setData(Points& data, int chosenDim,
                 i++;
                 //}
                 //polyLine->GetPointIds()->SetId(i, pointCounter);
-                iterator = iterator + 7;
+                iterator = iterator + 10;
                 pointCounter++;
                 nextLineIndex = data.getValueAt(iterator + 4);
             }
@@ -231,7 +231,7 @@ vtkSmartPointer<vtkImageData> ViewerWidget::setData(Points& data, int chosenDim,
         }
     }
     else {
-        while (iterator / 7 < numPoints) {
+        while (iterator / 10 < numPoints) {
             vtkSmartPointer<vtkPolyLine> polyLine = vtkSmartPointer<vtkPolyLine>::New();
             float currentLineIndex = data.getValueAt(iterator + 4);//lineIndex
             float nextLineIndex = currentLineIndex;
@@ -251,7 +251,7 @@ vtkSmartPointer<vtkImageData> ViewerWidget::setData(Points& data, int chosenDim,
                     i++;
                 }
 
-                iterator = iterator + 7;
+                iterator = iterator + 10;
                 pointCounter++;
                 nextLineIndex = data.getValueAt(iterator + 4);
             }

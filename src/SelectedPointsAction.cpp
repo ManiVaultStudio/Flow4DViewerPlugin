@@ -23,6 +23,8 @@ SelectedPointsAction::SelectedPointsAction(RendererSettingsAction& rendererSetti
     _selectPointActionSpeed(this, "export xyzspeed"),
     _selectPointActionTime(this, "export xyztime"),
     _selectPointActionSpeedTime(this, "export xyzspeedtime"),
+    _selectPointActionDerivative(this, "export vector"),
+    _selectPointActionDerivativeTime(this,"export vectortime"),
     //_positionAction(*this),
 
     _thresholdAction(this, "select timepoints", { 0,153 }, { 0,153 },0)
@@ -34,5 +36,10 @@ SelectedPointsAction::SelectedPointsAction(RendererSettingsAction& rendererSetti
     
     setText("Selected data options");
     addAction(&_selectPointAction);
+    addAction(&_selectPointActionSpeed);
+    addAction(&_selectPointActionTime);
+    addAction(&_selectPointActionSpeedTime);
+    addAction(&_selectPointActionDerivative);
+    addAction(&_selectPointActionDerivativeTime);
     addAction(&_thresholdAction);
 }
