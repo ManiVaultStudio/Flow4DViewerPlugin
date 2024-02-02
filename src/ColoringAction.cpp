@@ -12,7 +12,7 @@ ColoringAction::ColoringAction(RendererSettingsAction& rendererSettingsAction, c
     GroupAction(reinterpret_cast<QObject*>(&rendererSettingsAction), title),
     _rendererSettingsAction(rendererSettingsAction),
     
-    
+    _toggleColorSelection(this, "SelectionColor", false),
     
     // colormap options 
     _colorMapAction(this, "Transfer Function")
@@ -21,5 +21,6 @@ ColoringAction::ColoringAction(RendererSettingsAction& rendererSettingsAction, c
 {
     setText("Coloring parameters");
     addAction(&_colorMapAction);
+    addAction(&_toggleColorSelection);
 
 }

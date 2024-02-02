@@ -110,6 +110,10 @@ void Flow4DViewerPlugin::init()
         const auto dataset = datasetsMimeData->getDatasets().first();
         const auto datasetGuiName = dataset->text();
         const auto datasetId = dataset->getId();
+        //const auto datasetId = dataset->get;
+
+        const auto dataName = dataset->getGuiName();
+        std::cout << dataName.toStdString() << std::endl;
         const auto dataType = dataset->getDataType();
         const auto dataTypes = DataTypes({ PointType });
 
@@ -124,13 +128,24 @@ void Flow4DViewerPlugin::init()
                 
                 const auto candidateDataset = getCore()->requestDataset<Points>(datasetId);
                 //const auto candidateDatasetName = candidateDataset.getName();
-                const auto description = QString("Visualize %1 as voxels").arg(candidateDataset->getGuiName());
+                const auto description = QString("Visualize %1 as voxels").arg(datasetGuiName);
 
                 if (!_points.isValid()) {
                     dropRegions << new DropWidget::DropRegion(this, "Position", description, "cube", true, [this, candidateDataset]() {
                         _points = candidateDataset;
+                        int iterator = 0;
+                        std::cout << _points->getNumPoints() << std::endl;
+                        bool first = false;
+                        /*while (iterator / 10 < _points->getNumPoints() * _points->getProperty("lineSize").toInt()) {
+
+                            if (_points->getValueAt(iterator + 6) > 0 && first == false) {
+                                first = true;
+                                std::cout << _points->getValueAt(iterator + 6) << "num1" << std::endl;
+                            }
+                        }*/
                         if (_points->getDataHierarchyItem().hasParent()) {
                             _pointsParent = _points->getParent();
+                            std::cout << "triggered" << std::endl;
                         }
 
                     });
@@ -142,9 +157,22 @@ void Flow4DViewerPlugin::init()
                     else {
                         dropRegions << new DropWidget::DropRegion(this, "Voxels", description, "cube", true, [this, candidateDataset]() {
                             _points = candidateDataset;
+                            int iterator = 0;
+                            std::cout << _points->getNumPoints() << std::endl;
+                            bool first = false;
+                            /*while (iterator / 10 < _points->getNumPoints() * _points->getProperty("lineSize").toInt()) {
+                                
+                                if (_points->getValueAt(iterator + 6) > 0 && first == false) {
+                                    first = true;
+                                    std::cout << _points->getValueAt(iterator + 6) << "num2" << std::endl;
+                                }
 
+                                iterator = iterator + 10;
+                            }*/
                             if (_points->getDataHierarchyItem().hasParent()) {
                                 _pointsParent = _points->getParent();
+                                std::cout << "triggered" << std::endl;
+
                             }
 
                         });
@@ -220,12 +248,27 @@ void Flow4DViewerPlugin::init()
         else if (dimensionName == "Time Interval") {
             chosenDimension = 5;
         }
-        else if (dimensionName == "Group") {
+        else if (dimensionName == "Flow Group") {
             chosenDimension = 6;
         }
+        int iterator = 0;
+        int count = 0;
+        int first = false;
+        auto children = _points->getChildren();
+        std::cout << children.size() << "size" << std::endl;
+        _points->getDimensionNames();
+        while (iterator / 10 < _points->getNumPoints() * _points->getProperty("lineSize").toInt()) {
 
+            if (_points->getValueAt(iterator + 6) > 0  && first == false) {
+                                
+                std::cout << _points->getValueAt(iterator + 6) << "num1" << std::endl;
+                first = true;
+            }
+            iterator = iterator + 10;
+            count++;
+        }
 
-        
+        std::cout << count << " Count" << std::endl;
         // hide dropwidget
         _dropWidget->setShowDropIndicator(false);
         int boundsArray[2] = { 0,29 };
@@ -261,7 +304,7 @@ void Flow4DViewerPlugin::init()
             else if (dimensionName == "Time Interval") {
                 chosenDimension = 5;
             }
-            else if (dimensionName == "Group") {
+            else if (dimensionName == "Flow Group") {
                 chosenDimension = 6;
             }
 
@@ -280,6 +323,13 @@ void Flow4DViewerPlugin::init()
             runRenderData();
 
         }
+    });
+
+    connect(&this->getRendererSettingsAction().getColoringAction().getToggleColorSelection(), &ToggleAction::changed, this, [this]() {
+        bool colorToggled = this->getRendererSettingsAction().getColoringAction().getToggleColorSelection().isChecked();
+
+        this->getViewerWidget().setColorSelectionToggled(colorToggled);
+
     });
 
     //// Surrounding data enabled selector
@@ -321,8 +371,49 @@ void Flow4DViewerPlugin::init()
     //        runRenderData();
     //    }
     //});   
-    
-  
+    connect(&this->getRendererSettingsAction().getSelectedPointsAction().getConstructSelection(), &TriggerAction::triggered, this, [this]() {
+        auto xyzToggled = this->getRendererSettingsAction().getSelectedPointsAction().getXyzToggled().isChecked();
+        bool xyzDevToggled = this->getRendererSettingsAction().getSelectedPointsAction().getXyzDevToggled().isChecked();
+        bool speedToggled = this->getRendererSettingsAction().getSelectedPointsAction().getSpeedToggled().isChecked();
+        bool timeToggled = this->getRendererSettingsAction().getSelectedPointsAction().getTimeToggled().isChecked();
+
+
+
+        std::string xyz = "F:/BME_year2/thesis/VTK/Selection.txt";
+        std::ofstream file(xyz);
+
+        float lowerThreshold = this->getRendererSettingsAction().getSelectedPointsAction().getDecimalRangeAction().getMinimum();
+        float upperThreshold = this->getRendererSettingsAction().getSelectedPointsAction().getDecimalRangeAction().getMaximum();
+
+        if (file.is_open()) {
+            for (int i = lowerThreshold; i <= upperThreshold; i++) {
+                if (xyzToggled) {
+                    file << "x" << i << "\n";
+                    file << "y" << i << "\n";
+                    file << "z" << i << "\n";
+                }
+                if (speedToggled) {
+                    file << "speed" << i << "\n";
+                }
+                if (timeToggled) {
+                    file << "time" << i << "\n";
+                }
+                if (xyzDevToggled) {
+                    file << "x'" << i << "\n";
+                    file << "y'" << i << "\n";
+                    file << "z'" << i << "\n";
+                }
+
+
+            }
+            file.close();
+            std::cout << "File write successful." << std::endl;
+        }
+        else {
+            std::cout << "Unable to open the file." << std::endl;
+        }
+    });
+  /*
     connect(&this->getRendererSettingsAction().getSelectedPointsAction().getSelectPointAction(), &TriggerAction::triggered, this, [this]() {
         std::string xyz = "F:/BME_year2/thesis/VTK/xyz.txt";
         std::ofstream file(xyz);
@@ -342,7 +433,8 @@ void Flow4DViewerPlugin::init()
         else {
             std::cout << "Unable to open the file." << std::endl;
         }
-    });connect(&this->getRendererSettingsAction().getSelectedPointsAction().getSelectPointActionDerivative(), &TriggerAction::triggered, this, [this]() {
+    });
+    connect(&this->getRendererSettingsAction().getSelectedPointsAction().getSelectPointActionDerivative(), &TriggerAction::triggered, this, [this]() {
         std::string xyz = "F:/BME_year2/thesis/VTK/x'y'z'.txt";
         std::ofstream file(xyz);
 
@@ -403,7 +495,8 @@ void Flow4DViewerPlugin::init()
         else {
             std::cout << "Unable to open the file." << std::endl;
         }
-    });connect(&this->getRendererSettingsAction().getSelectedPointsAction().getSelectPointActionDerivativeTime(), &TriggerAction::triggered, this, [this]() {
+    });
+    connect(&this->getRendererSettingsAction().getSelectedPointsAction().getSelectPointActionDerivativeTime(), &TriggerAction::triggered, this, [this]() {
         std::string xyzspeed = "F:/BME_year2/thesis/VTK/x'y'z'time.txt";
         std::ofstream file(xyzspeed);
 
@@ -446,7 +539,7 @@ void Flow4DViewerPlugin::init()
             std::cout << "Unable to open the file." << std::endl;
         }
     });
-
+    */
     connect(&this->getRendererSettingsAction().getSelectedPointsAction().getDecimalRangeAction(), &DecimalRangeAction::rangeChanged, this, [this]() {
         float lowerThreshold = this->getRendererSettingsAction().getSelectedPointsAction().getDecimalRangeAction().getMinimum();
         float upperThreshold = this->getRendererSettingsAction().getSelectedPointsAction().getDecimalRangeAction().getMaximum();
@@ -455,7 +548,6 @@ void Flow4DViewerPlugin::init()
         
         // Get the selection set that changed
         const auto& selectionSet = _points->getSelection<Points>();
-
         // Get ChosenDimension
         
         std::string dimensionName = _rendererSettingsAction->getDimensionAction().getSelectedDataAction().getCurrentText().toStdString(); // get the currently selected chosen dimension as indicated by the dimensionchooser in the options menu
@@ -471,7 +563,7 @@ void Flow4DViewerPlugin::init()
         else if (dimensionName == "Time Interval") {
             chosenDimension = 5;
         }
-        else if (dimensionName == "Group") {
+        else if (dimensionName == "Flow Group") {
             chosenDimension = 6;
         }
         //_imageData = _viewerWidget->setData(*_points, chosenDimension, boundsArray, _colorMap);
@@ -523,7 +615,7 @@ void Flow4DViewerPlugin::init()
             else if (dimensionName == "Time Interval") {
                 chosenDimension = 5;
             }
-            else if (dimensionName == "Group") {
+            else if (dimensionName == "Flow Group") {
                 chosenDimension = 6;
             }
 
