@@ -8,7 +8,7 @@
 #include <actions/DecimalRangeAction.h>
 
 
-using namespace hdps::gui;
+using namespace mv::gui;
 
 class RendererSettingsAction;
 

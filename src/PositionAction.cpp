@@ -4,7 +4,7 @@
 #include <QHBoxLayout>
 
 
-using namespace hdps;
+using namespace mv;
 
 PositionAction::PositionAction(SelectedPointsAction& SelectedPointsAction, const QString& title) :
     WidgetAction(reinterpret_cast<QObject*>(&SelectedPointsAction), title),

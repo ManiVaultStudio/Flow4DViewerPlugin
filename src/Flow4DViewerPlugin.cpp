@@ -12,7 +12,7 @@
 
 #include <actions/PluginTriggerAction.h>
 #include <DatasetsMimeData.h>
-/** HDPS headers*/
+/** mv headers*/
 #include <PointData/PointData.h>
 #include <ClusterData/ClusterData.h>
 #include <ColorData/ColorData.h>
@@ -20,9 +20,10 @@
 #include <vtkPlaneCollection.h>
 #include <vtkPlane.h>
 
-using namespace hdps;
-using namespace hdps::gui;
-using namespace hdps::util;
+Q_PLUGIN_METADATA(IID "nl.BioVault.Flow4DViewerPlugin")
+
+
+
 
 Flow4DViewerPlugin::Flow4DViewerPlugin(const PluginFactory* factory) :
     ViewPlugin(factory),
@@ -126,7 +127,7 @@ void Flow4DViewerPlugin::init()
             // Accept points datasets drag and drop
             if (dataType == PointType) {
                 
-                const auto candidateDataset = getCore()->requestDataset<Points>(datasetId);
+                const auto candidateDataset = mv::data().getDataset(datasetId);     //requestDataset<Points>(datasetId);
                 //const auto candidateDatasetName = candidateDataset.getName();
                 const auto description = QString("Visualize %1 as voxels").arg(datasetGuiName);
 
@@ -194,7 +195,7 @@ void Flow4DViewerPlugin::init()
 
 
             // Get clusters dataset from the core
-            auto candidateDataset = _core->requestDataset<Clusters>(datasetId);
+            auto candidateDataset = mv::data().getDataset(datasetId);  //_core->requestDataset<Clusters>(datasetId);
 
 
             // Establish drop region descriptio
@@ -649,14 +650,14 @@ void Flow4DViewerPlugin::reInitializeLayout(QHBoxLayout layout) {
 
 }
 
-hdps::CoreInterface* Flow4DViewerPlugin::getCore()
+mv::CoreInterface* Flow4DViewerPlugin::getCore()
 {
     return _core;
 }
 
 QIcon Flow4DViewerPluginFactory::getIcon(const QColor& color /*= Qt::black*/) const
 {
-    return hdps::Application::getIconFont("FontAwesome").getIcon("cube", color);
+    return mv::Application::getIconFont("FontAwesome").getIcon("cube", color);
 }
 
 Flow4DViewerPlugin* Flow4DViewerPluginFactory::produce()
@@ -664,14 +665,14 @@ Flow4DViewerPlugin* Flow4DViewerPluginFactory::produce()
     return new Flow4DViewerPlugin(this);
 }
 
-hdps::DataTypes Flow4DViewerPluginFactory::supportedDataTypes() const
+mv::DataTypes Flow4DViewerPluginFactory::supportedDataTypes() const
 {
     DataTypes supportedTypes;
     supportedTypes.append(PointType);
     return supportedTypes;
 }
 
-hdps::gui::PluginTriggerActions Flow4DViewerPluginFactory::getPluginTriggerActions(const hdps::Datasets& datasets) const
+mv::gui::PluginTriggerActions Flow4DViewerPluginFactory::getPluginTriggerActions(const mv::Datasets& datasets) const
 {
     PluginTriggerActions pluginTriggerActions;
 

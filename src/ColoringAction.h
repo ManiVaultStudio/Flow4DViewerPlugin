@@ -5,7 +5,7 @@
 #include "actions/OptionAction.h"
 
 
-using namespace hdps::gui;
+using namespace mv::gui;
 
 class RendererSettingsAction;
 

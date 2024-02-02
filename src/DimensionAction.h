@@ -10,7 +10,7 @@
 #include <PointData/DimensionPickerAction.h>
 
 
-using namespace hdps::gui;
+using namespace mv::gui;
 
 class RendererSettingsAction;
 class Flow4DViewerPlugin;

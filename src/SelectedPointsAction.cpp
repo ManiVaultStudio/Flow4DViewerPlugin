@@ -9,7 +9,7 @@
 #include <ThresholdAction.h>
 #include <actions/DecimalRangeAction.h>
 
-using namespace hdps;
+using namespace mv;
 
 SelectedPointsAction::SelectedPointsAction(RendererSettingsAction& rendererSettingsAction, const QString& title) :
     GroupAction(reinterpret_cast<QObject*>(&rendererSettingsAction), title),

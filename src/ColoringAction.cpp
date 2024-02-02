@@ -6,7 +6,7 @@
 #include "RendererSettingsAction.h"
 #include <QGraphicsScene>
 
-using namespace hdps;
+using namespace mv;
 
 ColoringAction::ColoringAction(RendererSettingsAction& rendererSettingsAction, const QString& title) :
     GroupAction(reinterpret_cast<QObject*>(&rendererSettingsAction), title),

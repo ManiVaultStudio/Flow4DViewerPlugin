@@ -12,7 +12,7 @@
 #include <RendererSettingsAction.h>
 #include <Flow4DViewerPlugin.h>
 
-/** HDPS headers */
+/** mv headers */
 #include <Dataset.h>
 #include <PointData/PointData.h>
 
@@ -61,8 +61,8 @@
 //#include <vtkExtractSelection.h>
 //#include <vtkUnstructuredGrid.h>
 
-using namespace hdps;
-using namespace hdps::gui;
+using namespace mv;
+using namespace mv::gui;
 
 namespace {
 // Catch mouse events
@@ -553,10 +553,10 @@ void ViewerWidget::setClusterColor(const Dataset<Clusters>& clusterData) {
     //std::cout << test << std::endl;
     _clusterData = clusterData;
     _clusterLoaded = true;
-    for (const auto& cluster : clusterData->getClusters()) {
-        cluster.getIndices();
+    //for (const auto& cluster : clusterData->getClusters()) {
+        //cluster.getIndices();
 
-    }
+    //}
 }
 
 //void ViewerWidget::setSelectedCell(int cellID, int *xyz) {

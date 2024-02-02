@@ -3,7 +3,7 @@
 /** QT headers*/
 #include <QWidget>
 #include <QResizeEvent>
-/**  HDPS headers*/
+/**  mv headers*/
 #include <Dataset.h>
 #include <PointData/PointData.h>
 
@@ -21,7 +21,7 @@
 
 
 class Flow4DViewerPlugin;
-using namespace hdps;
+using namespace mv;
 
 
 
