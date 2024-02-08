@@ -7,7 +7,7 @@
 #include "DimensionAction.h"
 #include "SelectedPointsAction.h"
 
-using namespace hdps::gui;
+using namespace mv::gui;
 
 /**
  * Renderer settings action class

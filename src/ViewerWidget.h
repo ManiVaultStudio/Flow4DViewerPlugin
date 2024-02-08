@@ -3,7 +3,7 @@
 /** QT headers*/
 #include <QWidget>
 #include <QResizeEvent>
-/**  HDPS headers*/
+/**  mv headers*/
 #include <Dataset.h>
 #include <PointData/PointData.h>
 
@@ -21,7 +21,7 @@
 
 
 class Flow4DViewerPlugin;
-using namespace hdps;
+using namespace mv;
 
 
 
@@ -65,6 +65,10 @@ public:
     }
 
     void setClusterColor(const Dataset<Clusters>& clusterData);
+
+    void setColorSelectionToggled(bool checked) {
+        _colorSelectionToggled = checked;
+    }
     
 private:
     QVTKOpenGLNativeWidget* _openGLWidget;                          /** OpenGl Widget for rendering*/
@@ -81,6 +85,7 @@ private:
     Dataset<Clusters> _clusterData;
     bool _clusterLoaded;
     bool _dataSelected;                                              /** Boolian to indicate wether or not data is selected*/
+    bool _colorSelectionToggled;
     int _xSize;
     int _ySize;
     int _zSize;
@@ -90,6 +95,7 @@ private:
     float _upperThreshold;
     float _lowerThreshold;
     bool _firstRender;
+    int _chosenDimension;
     
 
 protected:

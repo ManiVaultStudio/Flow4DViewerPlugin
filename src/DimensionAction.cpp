@@ -7,7 +7,7 @@
 #include <QFileDialog>
 #include <qmessagebox.h>
 
-using namespace hdps;
+using namespace mv;
 
 DimensionAction::DimensionAction(RendererSettingsAction& rendererSettingsAction, ViewerWidget* viewerWidget, const QString& title) :
     GroupAction(reinterpret_cast<QObject*>(&rendererSettingsAction), title),
@@ -15,7 +15,7 @@ DimensionAction::DimensionAction(RendererSettingsAction& rendererSettingsAction,
 
     _viewerWidget(nullptr),
 
-    _selectedDataAction(this, "Select data", { "Flow Speed","Line Index", "Time Interval"}, "Flow Speed")
+    _selectedDataAction(this, "Select data", { "Flow Speed","Line Index", "Time Interval", "Flow Group"}, "Flow Group")
 
 {
     setText("Data value selecter");

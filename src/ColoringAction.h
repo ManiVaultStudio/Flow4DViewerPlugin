@@ -5,7 +5,7 @@
 #include "actions/OptionAction.h"
 
 
-using namespace hdps::gui;
+using namespace mv::gui;
 
 class RendererSettingsAction;
 
@@ -33,11 +33,12 @@ public: /** Action getters */
     
     ColorMap1DAction& getColorMapAction() { return  _colorMapAction; }
     
-    
+    ToggleAction& getToggleColorSelection() { return _toggleColorSelection; }
 
 
 protected:
     RendererSettingsAction&     _rendererSettingsAction;        /** Reference to renderer settings action */
+    ToggleAction _toggleColorSelection;
    
     ColorMap1DAction              _colorMapAction;                 /** Color map Action */
     

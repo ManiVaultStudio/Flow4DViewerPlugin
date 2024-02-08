@@ -8,7 +8,7 @@
 #include <actions/DecimalRangeAction.h>
 
 
-using namespace hdps::gui;
+using namespace mv::gui;
 
 class RendererSettingsAction;
 
@@ -40,10 +40,18 @@ public: /** Action getters */
     //DecimalAction& getBackgroundAlphaAction() { return _backgroundAlphaAction; }
     //OptionAction& getSelectionAlphaAction() { return  _selectionAlphaAction; }
     //PositionAction& getPositionAction() { return _positionAction; }
-    TriggerAction& getSelectPointAction() { return  _selectPointAction; }
+    /*TriggerAction& getSelectPointAction() { return  _selectPointAction; }
     TriggerAction& getSelectPointActionSpeed() { return  _selectPointActionSpeed; }
     TriggerAction& getSelectPointActionTime() { return  _selectPointActionTime; }
     TriggerAction& getSelectPointActionSpeedTime() { return  _selectPointActionSpeedTime; }
+    TriggerAction& getSelectPointActionDerivative() { return  _selectPointActionDerivative; }
+    TriggerAction& getSelectPointActionDerivativeTime() { return  _selectPointActionDerivativeTime; }*/
+    ToggleAction& getXyzToggled() { return _xyzToggled; }
+    ToggleAction& getXyzDevToggled() { return _xyzDevToggled; }
+    ToggleAction& getSpeedToggled() { return _speedToggled; }
+    ToggleAction& getTimeToggled() { return _timeToggled; }
+    TriggerAction& getConstructSelection() { return _constructSelection; }
+    
    
     DecimalRangeAction& getDecimalRangeAction() { return _thresholdAction; }
     
@@ -62,10 +70,17 @@ protected:
     //OptionAction                    _selectionAlphaAction;
     //DecimalAction                _diffuseConstantAction;               /** Input box for diffuse color constant.*/
     //DecimalAction                _specularConstantAction;               /** Input box for specular color constant.*/
-    TriggerAction                   _selectPointAction;                 /** Activate point selection*/
-    TriggerAction                   _selectPointActionSpeed;                 /** Activate point selection*/
-    TriggerAction                   _selectPointActionTime;                 /** Activate point selection*/
-    TriggerAction                   _selectPointActionSpeedTime;                 /** Activate point selection*/
+    //TriggerAction                   _selectPointAction;                 /** Activate point selection*/
+    //TriggerAction                   _selectPointActionSpeed;                 /** Activate point selection*/
+    //TriggerAction                   _selectPointActionTime;                 /** Activate point selection*/
+    //TriggerAction                   _selectPointActionSpeedTime;                 /** Activate point selection*/
+    //TriggerAction                   _selectPointActionDerivative;                 /** Activate point selection*/
+    //TriggerAction                   _selectPointActionDerivativeTime;                 /** Activate point selection*/
+    ToggleAction                    _xyzToggled;
+    ToggleAction                    _xyzDevToggled;
+    ToggleAction                    _speedToggled;
+    ToggleAction                    _timeToggled;
+    TriggerAction                   _constructSelection;
     //PositionAction                  _positionAction;
     
     DecimalRangeAction              _thresholdAction;

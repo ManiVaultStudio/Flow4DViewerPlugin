@@ -208,7 +208,7 @@ inline QString colorSpaceName(const ColorSpace& colorSpace)
     return "";
 }
 
-namespace hdps
+namespace mv
 {
     /**
      * Creates a container of the specified type, and copies the elements from the

@@ -1,7 +1,7 @@
 #include "RendererSettingsAction.h"
 #include <ViewerWidget.h>
 
-using namespace hdps;
+using namespace mv;
 
 RendererSettingsAction::RendererSettingsAction(QObject* parent, ViewerWidget* viewerWidget, const QString& title) :
     GroupsAction(parent, title),
