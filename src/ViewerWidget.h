@@ -54,9 +54,7 @@ public:
    void setSelectedDataTime(Points& points, std::vector<unsigned int, std::allocator<unsigned int>> selectionIndices, int chosenDim, int boundsArray[2] );
 
    //void setSelectedCell(int cellID, int *xyz);
-   /*int* getSelectedCellCoordinate() {
-       return _selectedCellCoordinate;
-   }*/
+
 
    vtkSmartPointer<vtkImageData> connectedSelection(Points& points,int choseDim, int *seedpoint,float upThreshold, float lowThreshold);
 

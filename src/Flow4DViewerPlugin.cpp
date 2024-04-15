@@ -19,6 +19,7 @@
 /** VTK headers*/
 #include <vtkPlaneCollection.h>
 #include <vtkPlane.h>
+#include <vtkVersion.h>
 
 Q_PLUGIN_METADATA(IID "nl.BioVault.Flow4DViewerPlugin")
 
@@ -28,16 +29,11 @@ Q_PLUGIN_METADATA(IID "nl.BioVault.Flow4DViewerPlugin")
 Flow4DViewerPlugin::Flow4DViewerPlugin(const PluginFactory* factory) :
     ViewPlugin(factory),
     _viewerWidget(nullptr),
-    //_transferWidget(nullptr),
-    //_selectionData(vtkSmartPointer<vtkImageData>::New()),
-    _imageData(vtkSmartPointer<vtkImageData>::New()),
-    
+    _imageData(vtkSmartPointer<vtkImageData>::New()),    
     _points(),
-
     _pointsParent(),
     _pointsColorCluster(),
     _rendererSettingsAction(),
-
     _dropWidget(nullptr),
     
     // boolian to indicate if data is loaded for selection visualization purposes
@@ -62,13 +58,12 @@ Flow4DViewerPlugin::Flow4DViewerPlugin(const PluginFactory* factory) :
 }
 
 void Flow4DViewerPlugin::init()
-{
+{    
     // Add the viewerwidget and dropwidget to the layout.
     _viewerWidget = new ViewerWidget(*this);
    // Add the dropwidget to the layout.
     _dropWidget = new DropWidget(_viewerWidget);
-    _rendererSettingsAction = new RendererSettingsAction(this, _viewerWidget, "Primary Toolbar");
-    
+    _rendererSettingsAction = new RendererSettingsAction(this, _viewerWidget, "Primary Toolbar");    
     
     // Create the layout.
     auto layout = new QHBoxLayout();
@@ -76,19 +71,6 @@ void Flow4DViewerPlugin::init()
     layout->setSpacing(0);
     layout->addWidget(_viewerWidget, 1);
 
-    /*auto settingsLayout = new QVBoxLayout();
-
-    settingsLayout->addWidget(_rendererSettingsAction.createWidget(&getWidget()));
-    settingsLayout->setContentsMargins(6, 6, 6, 6);
-
-     //Add the actions.
-    GroupsAction::GroupActions groupActions;
-    groupActions << &_rendererSettingsAction.getDimensionAction() << &_rendererSettingsAction.getColoringAction() << &_rendererSettingsAction.getSelectedPointsAction();
-    _rendererSettingsAction.setGroupActions(groupActions);
-
-    layout->addLayout(settingsLayout, 1);
-
-    getWidget().setAutoFillBackground(true);*/
     getWidget().setLayout(layout);
     
     // Set the drop indicator widget (the widget that indicates that the view is eligible for data dropping)
@@ -111,10 +93,9 @@ void Flow4DViewerPlugin::init()
         const auto dataset = datasetsMimeData->getDatasets().first();
         const auto datasetGuiName = dataset->text();
         const auto datasetId = dataset->getId();
-        //const auto datasetId = dataset->get;
 
         const auto dataName = dataset->getGuiName();
-        std::cout << dataName.toStdString() << std::endl;
+       
         const auto dataType = dataset->getDataType();
         const auto dataTypes = DataTypes({ PointType });
 
@@ -135,18 +116,11 @@ void Flow4DViewerPlugin::init()
                     dropRegions << new DropWidget::DropRegion(this, "Position", description, "cube", true, [this, candidateDataset]() {
                         _points = candidateDataset;
                         int iterator = 0;
-                        std::cout << _points->getNumPoints() << std::endl;
+                        
                         bool first = false;
-                        /*while (iterator / 10 < _points->getNumPoints() * _points->getProperty("lineSize").toInt()) {
-
-                            if (_points->getValueAt(iterator + 6) > 0 && first == false) {
-                                first = true;
-                                std::cout << _points->getValueAt(iterator + 6) << "num1" << std::endl;
-                            }
-                        }*/
                         if (_points->getDataHierarchyItem().hasParent()) {
                             _pointsParent = _points->getParent();
-                            std::cout << "triggered" << std::endl;
+                           
                         }
 
                     });
@@ -161,30 +135,13 @@ void Flow4DViewerPlugin::init()
                             int iterator = 0;
                             std::cout << _points->getNumPoints() << std::endl;
                             bool first = false;
-                            /*while (iterator / 10 < _points->getNumPoints() * _points->getProperty("lineSize").toInt()) {
-                                
-                                if (_points->getValueAt(iterator + 6) > 0 && first == false) {
-                                    first = true;
-                                    std::cout << _points->getValueAt(iterator + 6) << "num2" << std::endl;
-                                }
-
-                                iterator = iterator + 10;
-                            }*/
                             if (_points->getDataHierarchyItem().hasParent()) {
                                 _pointsParent = _points->getParent();
-                                std::cout << "triggered" << std::endl;
+                                
 
                             }
 
                         });
-                        //if (candidateDataset->getNumPoints() == _points->getNumPoints()) {
-
-                        //    // The number of points is equal, so offer the option to use the points dataset as source for points colors
-                        //    dropRegions << new DropWidget::DropRegion(this, "Point color", QString("Colorize %1 points with %2"), "palette", true, [this, candidateDataset]() {
-                        //        //_settingsAction.getColoringAction().addColorDataset(candidateDataset);
-                        //        //_settingsAction.getColoringAction().setCurrentColorDataset(candidateDataset);
-                        //        _pointsColorCluster = candidateDataset;
-                        //    });
 
                     }
                 }
@@ -208,11 +165,6 @@ void Flow4DViewerPlugin::init()
 
                     // The clusters dataset is already loaded
                     dropRegions << new DropWidget::DropRegion(this, "Color", description, "palette", true, [this, candidateDataset]() {
-                        //auto test = candidateDataset->getClusters();
-
-
-                        //auto t = test[0];
-                        //std::cout << t.toString().toStdString() << std::endl;
                         _pointsColorCluster = candidateDataset;
                     });
                 }
@@ -220,8 +172,6 @@ void Flow4DViewerPlugin::init()
 
                     // Use the clusters set for points color
                     dropRegions << new DropWidget::DropRegion(this, "Color", description, "palette", true, [this, candidateDataset]() {
-                        //_settingsAction.getColoringAction().addColorDataset(candidateDataset);
-                        //_settingsAction.getColoringAction().setCurrentColorDataset(candidateDataset);
                     });
                 }
             }
@@ -256,7 +206,6 @@ void Flow4DViewerPlugin::init()
         int count = 0;
         int first = false;
         auto children = _points->getChildren();
-        std::cout << children.size() << "size" << std::endl;
         _points->getDimensionNames();
         while (iterator / 10 < _points->getNumPoints() * _points->getProperty("lineSize").toInt()) {
 
@@ -269,7 +218,6 @@ void Flow4DViewerPlugin::init()
             count++;
         }
 
-        std::cout << count << " Count" << std::endl;
         // hide dropwidget
         _dropWidget->setShowDropIndicator(false);
         int boundsArray[2] = { 0,29 };
@@ -279,9 +227,7 @@ void Flow4DViewerPlugin::init()
         
             
         //Initial render.
-        _viewerWidget->renderData( _imageData, _interpolationOption, _colorMap, _shadingEnabled, _shadingParameters);
-
-        
+        _viewerWidget->renderData( _imageData, _interpolationOption, _colorMap, _shadingEnabled, _shadingParameters);        
         
         // notify that data is indeed loaded into the widget
         _dataLoaded = true;
@@ -333,45 +279,6 @@ void Flow4DViewerPlugin::init()
 
     });
 
-    //// Surrounding data enabled selector
-    //connect(&this->getRendererSettingsAction().getSelectedPointsAction().getBackgroundShowAction(), &OptionAction::currentTextChanged, this, [this](const QString& show) {
-    //    // Selector option handeling
-    //    if (show == "Show background") {
-    //        _backgroundEnabled = true;
-    //        // Enable the alpha slider for the background
-    //        this->getRendererSettingsAction().getSelectedPointsAction().getBackgroundAlphaAction().setDisabled(false);
-    //    }
-    //    else {
-    //        _backgroundEnabled = false;
-    //        // Disable the alpha slider for the background
-    //        this->getRendererSettingsAction().getSelectedPointsAction().getBackgroundAlphaAction().setDisabled(true);
-    //    }
-
-    //    if (_dataSelected) {
-    //        runRenderData();
-    //    }
-    //});
-    //// Background alpha slider
-    //connect(&this->getRendererSettingsAction().getSelectedPointsAction().getBackgroundAlphaAction(), &DecimalAction::valueChanged, this, [this](const float& value) {
-    //    if (_backgroundEnabled) {
-    //        _backgroundAlpha = value;
-    //        if (_dataSelected) {
-    //            runRenderData();
-    //        }
-    //    }
-    //});
-    //// Selection alpha setting selector
-    //connect(&this->getRendererSettingsAction().getSelectedPointsAction().getSelectionAlphaAction(), &OptionAction::currentTextChanged, this, [this](const QString& opaqueOrTf) {
-    //    if (opaqueOrTf == "Opaque") {
-    //        _selectionOpaque = true;
-    //    }
-    //    else {
-    //        _selectionOpaque = false;
-    //    }
-    //    if (_dataSelected) {
-    //        runRenderData();
-    //    }
-    //});   
     connect(&this->getRendererSettingsAction().getSelectedPointsAction().getConstructSelection(), &TriggerAction::triggered, this, [this]() {
         auto xyzToggled = this->getRendererSettingsAction().getSelectedPointsAction().getXyzToggled().isChecked();
         bool xyzDevToggled = this->getRendererSettingsAction().getSelectedPointsAction().getXyzDevToggled().isChecked();
@@ -414,138 +321,11 @@ void Flow4DViewerPlugin::init()
             std::cout << "Unable to open the file." << std::endl;
         }
     });
-  /*
-    connect(&this->getRendererSettingsAction().getSelectedPointsAction().getSelectPointAction(), &TriggerAction::triggered, this, [this]() {
-        std::string xyz = "F:/BME_year2/thesis/VTK/xyz.txt";
-        std::ofstream file(xyz);
-
-        float lowerThreshold = this->getRendererSettingsAction().getSelectedPointsAction().getDecimalRangeAction().getMinimum();
-        float upperThreshold = this->getRendererSettingsAction().getSelectedPointsAction().getDecimalRangeAction().getMaximum();
-
-        if (file.is_open()) {
-            for (int i = lowerThreshold; i <= upperThreshold; i++) {
-                file << "x" << i << "\n";
-                file << "y" << i << "\n";
-                file << "z" << i << "\n";
-            }
-            file.close();
-            std::cout << "File write successful." << std::endl;
-        }
-        else {
-            std::cout << "Unable to open the file." << std::endl;
-        }
-    });
-    connect(&this->getRendererSettingsAction().getSelectedPointsAction().getSelectPointActionDerivative(), &TriggerAction::triggered, this, [this]() {
-        std::string xyz = "F:/BME_year2/thesis/VTK/x'y'z'.txt";
-        std::ofstream file(xyz);
-
-        float lowerThreshold = this->getRendererSettingsAction().getSelectedPointsAction().getDecimalRangeAction().getMinimum();
-        float upperThreshold = this->getRendererSettingsAction().getSelectedPointsAction().getDecimalRangeAction().getMaximum();
-
-        if (file.is_open()) {
-            for (int i = lowerThreshold; i <= upperThreshold; i++) {
-                file << "x'" << i << "\n";
-                file << "y'" << i << "\n";
-                file << "z'" << i << "\n";
-            }
-            file.close();
-            std::cout << "File write successful." << std::endl;
-        }
-        else {
-            std::cout << "Unable to open the file." << std::endl;
-        }
-    });
-    connect(&this->getRendererSettingsAction().getSelectedPointsAction().getSelectPointActionSpeed(), &TriggerAction::triggered, this, [this]() {
-        std::string xyzspeed = "F:/BME_year2/thesis/VTK/xyzspeed.txt";
-        std::ofstream file(xyzspeed);
-
-        float lowerThreshold = this->getRendererSettingsAction().getSelectedPointsAction().getDecimalRangeAction().getMinimum();
-        float upperThreshold = this->getRendererSettingsAction().getSelectedPointsAction().getDecimalRangeAction().getMaximum();
-
-        if (file.is_open()) {
-            for (int i = lowerThreshold; i <= upperThreshold; i++) {
-                file << "x" << i << "\n";
-                file << "y" << i << "\n";
-                file << "z" << i << "\n";
-                file << "speed" << i << "\n";
-            }
-            file.close();
-            std::cout << "File write successful." << std::endl;
-        }
-        else {
-            std::cout << "Unable to open the file." << std::endl;
-        }
-    });
-    connect(&this->getRendererSettingsAction().getSelectedPointsAction().getSelectPointActionTime(), &TriggerAction::triggered, this, [this]() {
-        std::string xyzspeed = "F:/BME_year2/thesis/VTK/xyztime.txt";
-        std::ofstream file(xyzspeed);
-
-        float lowerThreshold = this->getRendererSettingsAction().getSelectedPointsAction().getDecimalRangeAction().getMinimum();
-        float upperThreshold = this->getRendererSettingsAction().getSelectedPointsAction().getDecimalRangeAction().getMaximum();
-
-        if (file.is_open()) {
-            for (int i = lowerThreshold; i <= upperThreshold; i++) {
-                file << "x" << i << "\n";
-                file << "y" << i << "\n";
-                file << "z" << i << "\n";
-                file << "time" << i << "\n";
-            }
-            file.close();
-            std::cout << "File write successful." << std::endl;
-        }
-        else {
-            std::cout << "Unable to open the file." << std::endl;
-        }
-    });
-    connect(&this->getRendererSettingsAction().getSelectedPointsAction().getSelectPointActionDerivativeTime(), &TriggerAction::triggered, this, [this]() {
-        std::string xyzspeed = "F:/BME_year2/thesis/VTK/x'y'z'time.txt";
-        std::ofstream file(xyzspeed);
-
-        float lowerThreshold = this->getRendererSettingsAction().getSelectedPointsAction().getDecimalRangeAction().getMinimum();
-        float upperThreshold = this->getRendererSettingsAction().getSelectedPointsAction().getDecimalRangeAction().getMaximum();
-
-        if (file.is_open()) {
-            for (int i = lowerThreshold; i <= upperThreshold; i++) {
-                file << "x'" << i << "\n";
-                file << "y'" << i << "\n";
-                file << "z'" << i << "\n";
-                file << "time" << i << "\n";
-            }
-            file.close();
-            std::cout << "File write successful." << std::endl;
-        }
-        else {
-            std::cout << "Unable to open the file." << std::endl;
-        }
-    });
-    connect(&this->getRendererSettingsAction().getSelectedPointsAction().getSelectPointActionSpeedTime(), &TriggerAction::triggered, this, [this]() {
-        std::string xyzspeed = "F:/BME_year2/thesis/VTK/xyzspeedtime.txt";
-        std::ofstream file(xyzspeed);
-
-        float lowerThreshold = this->getRendererSettingsAction().getSelectedPointsAction().getDecimalRangeAction().getMinimum();
-        float upperThreshold = this->getRendererSettingsAction().getSelectedPointsAction().getDecimalRangeAction().getMaximum();
-
-        if (file.is_open()) {
-            for (int i = lowerThreshold; i <= upperThreshold; i++) {
-                file << "x" << i << "\n";
-                file << "y" << i << "\n";
-                file << "z" << i << "\n";
-                file << "speed" << i << "\n";
-                file << "time" << i << "\n";
-            }
-            file.close();
-            std::cout << "File write successful." << std::endl;
-        }
-        else {
-            std::cout << "Unable to open the file." << std::endl;
-        }
-    });
-    */
+    // Connection for time window selection.
     connect(&this->getRendererSettingsAction().getSelectedPointsAction().getDecimalRangeAction(), &DecimalRangeAction::rangeChanged, this, [this]() {
         float lowerThreshold = this->getRendererSettingsAction().getSelectedPointsAction().getDecimalRangeAction().getMinimum();
         float upperThreshold = this->getRendererSettingsAction().getSelectedPointsAction().getDecimalRangeAction().getMaximum();
         int boundsArray[2] = { lowerThreshold,upperThreshold };
-        //_points->setSelectionIndices();
         
         // Get the selection set that changed
         const auto& selectionSet = _points->getSelection<Points>();
@@ -567,12 +347,8 @@ void Flow4DViewerPlugin::init()
         else if (dimensionName == "Flow Group") {
             chosenDimension = 6;
         }
-        //_imageData = _viewerWidget->setData(*_points, chosenDimension, boundsArray, _colorMap);
-        //_viewerWidget->renderData( _imageData, _interpolationOption, _colorMap, _shadingEnabled, _shadingParameters);
-
         // create a selectiondata imagedata object with 0 values for all non selected items
         _viewerWidget->setSelectedDataTime(*_points, selectionSet->indices, chosenDimension, boundsArray);
-
 
         // if the selection is not empty add the selection to the vector 
         if (selectionSet->indices.size() != 0) {

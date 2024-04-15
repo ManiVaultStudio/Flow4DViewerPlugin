@@ -53,14 +53,6 @@
 #include <vtkActor.h>
 #include <vtkLookupTable.h>
 
-
-
-//#include <vtkIdTypeArray.h>
-//#include <vtkSelectionNode.h>
-//#include <vtkSelection.h>
-//#include <vtkExtractSelection.h>
-//#include <vtkUnstructuredGrid.h>
-
 using namespace mv;
 using namespace mv::gui;
 
@@ -90,7 +82,6 @@ class MouseInteractorStyle : public vtkInteractorStyleTrackballCamera
             double* worldPosition = picker->GetPickPosition();
             int cellID = picker->GetCellId();
             auto xyz = picker->GetCellIJK();          
-            //_widget->setSelectedCell(cellID, xyz);
 
             // Forward events
             vtkInteractorStyleTrackballCamera::OnLeftButtonDown();
@@ -114,7 +105,6 @@ ViewerWidget::ViewerWidget(Flow4DViewerPlugin& Flow4DViewerPlugin, QWidget* pare
 	mRenderWindow(vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New()),
 	mRenderer(vtkSmartPointer<vtkRenderer>::New()),
 	mInteractor(vtkSmartPointer<QVTKInteractor>::New()),
-	//mInteractorStyle(vtkSmartPointer<MouseInteractorStyle>::New()),
     _labelMap(vtkSmartPointer<vtkImageData>::New()),
     _imData(vtkSmartPointer<vtkImageData>::New()),
 	numDimensions(),
@@ -162,30 +152,27 @@ ViewerWidget::~ViewerWidget()
 {
 
 }
-
+// Function to add data into the viewerwidget.
 vtkSmartPointer<vtkImageData> ViewerWidget::setData(Points& data, int chosenDim, int boundsArray[2], std::string colorMap)
 {
+    // Save time window bounds.
     int upperBound = boundsArray[1];
     int lowerBound = boundsArray[0];
     
-    std::cout << boundsArray[0] << std::endl;
-    std::cout << boundsArray[1] << std::endl;
     _firstRender = true;
-    //chosenDim = 3;
 	// Get number of points from points dataset.
-	
     _chosenDimension = chosenDim;
 	// Get number of dimensions from points dataset.
 	numDimensions = data.getNumDimensions();
     int lineSize = data.getProperty("lineSize").toInt();
+
+    // Was used for alternative visualization method, should now work using just the else statement.
     if (numDimensions > 10) {
         numPoints = data.getNumPoints()* lineSize;
         
     }
     else {
         numPoints = data.getNumPoints();
-        
-
     }
     
     vtkSmartPointer<vtkPoints> vtkPointObject = vtkSmartPointer<vtkPoints>::New();
@@ -196,22 +183,18 @@ vtkSmartPointer<vtkImageData> ViewerWidget::setData(Points& data, int chosenDim,
     dataArray->SetNumberOfValues(numPoints);
     int pointCounter = 0;
     
-    if (numDimensions>10) {
-        
-        
+    //  If statement no longer in use i believe with the current vtkloaderplugin.
+    if (numDimensions>10) {     
         while (iterator / 10 < numPoints) {
             vtkSmartPointer<vtkPolyLine> polyLine = vtkSmartPointer<vtkPolyLine>::New();
             float currentLineIndex = data.getValueAt(iterator + 4);//lineIndex
             float nextLineIndex = currentLineIndex;
             int i = 0;
             
-            
             std::vector<std::vector<int>> savePoints;
             
             while (currentLineIndex == nextLineIndex)
             {
-                //if (data.getValueAt(iterator + 5) <= upperBound && data.getValueAt(iterator + 5) >= lowerBound) {
-                
                 double p[3] = { data.getValueAt(iterator), data.getValueAt(iterator + 1), data.getValueAt(iterator + 2) };
                 dataArray->SetValue(pointCounter, data.getValueAt(iterator + chosenDim));
                 
@@ -219,8 +202,6 @@ vtkSmartPointer<vtkImageData> ViewerWidget::setData(Points& data, int chosenDim,
 
                 savePoints.push_back({ i,pointCounter });
                 i++;
-                //}
-                //polyLine->GetPointIds()->SetId(i, pointCounter);
                 iterator = iterator + 10;
                 pointCounter++;
                 if (iterator > numPoints * 10) {
@@ -230,27 +211,30 @@ vtkSmartPointer<vtkImageData> ViewerWidget::setData(Points& data, int chosenDim,
             }
             
             polyLine->GetPointIds()->SetNumberOfIds(i);
-            //std::cout << data.getValueAt(iterator + 6) << " group" << pointCounter << std::endl;
             for (int j = 0; j < savePoints.size(); j++) {
                 polyLine->GetPointIds()->SetId(savePoints[j][0], savePoints[j][1]);
             }
             cells->InsertNextCell(polyLine);
-            //std::cout << iterator << std::endl;
-            
         }
     }
     else {
+        // Loop over all points.
         while (iterator / 10 < numPoints) {
+            // Create a polyline object for the generation of pathlines
             vtkSmartPointer<vtkPolyLine> polyLine = vtkSmartPointer<vtkPolyLine>::New();
+
+            // Record the next and current line indices so that the line creation can be stopped at the correct time.
             float currentLineIndex = data.getValueAt(iterator + 4);//lineIndex
             float nextLineIndex = currentLineIndex;
             int i = 0;
 
+            // Iterate over points in the current pathline, if the current lineindex is different from the next one stop.
             std::vector<std::vector<int>> savePoints;
             while (currentLineIndex == nextLineIndex)
             {
+                // If data falls within selected timewindow record that datapoint.
                 if (data.getValueAt(iterator + 5) <= upperBound && data.getValueAt(iterator + 5) >= lowerBound) {
-
+                   
                     double p[3] = { data.getValueAt(iterator), data.getValueAt(iterator + 1), data.getValueAt(iterator + 2) };
                     dataArray->SetValue(pointCounter, data.getValueAt(iterator + chosenDim));
 
@@ -264,9 +248,9 @@ vtkSmartPointer<vtkImageData> ViewerWidget::setData(Points& data, int chosenDim,
                 pointCounter++;
                 nextLineIndex = data.getValueAt(iterator + 4);
             }
-            
+                // Set the number of points that need to be used to create a pathline.
                 polyLine->GetPointIds()->SetNumberOfIds(i);
-                
+                // Create a line from these points.
                 for (int j = 0; j < savePoints.size(); j++) {
                     polyLine->GetPointIds()->SetId(savePoints[j][0], savePoints[j][1]);
                 }
@@ -275,7 +259,7 @@ vtkSmartPointer<vtkImageData> ViewerWidget::setData(Points& data, int chosenDim,
             
         }
     }
-    
+    // Put all line data in a polydataset.
     _polyData->SetPoints(vtkPointObject);
     
     _savedSpeedArray = dataArray;
@@ -284,22 +268,17 @@ vtkSmartPointer<vtkImageData> ViewerWidget::setData(Points& data, int chosenDim,
     
     _polyData->SetLines(cells);
 
-   
-    
-   
-
-
-	//// Create a vtkimagedata object of size xSize, ySize and zSize with vtk_float type vectors.
+    // Imdata is no longer used and is a leftover statement from the volumeviewerplugin. 
+    // Its still in here because it is build into a lot of functions and was not interfering when using the plugin for my thesis.
+    // Imdata was replaced by polydata
 	vtkSmartPointer<vtkImageData> imData = vtkSmartPointer<vtkImageData>::New();
-	//imData->SetDimensions(xSize, ySize, zSize);
-	//imData->AllocateScalars(VTK_FLOAT, 1);
 
 	return imData;
 }
 	
 void ViewerWidget::renderData( vtkSmartPointer<vtkImageData> imData, std::string interpolationOption, std::string colorMap, bool shadingEnabled, std::vector<double> shadingParameters){
  
-    
+    // Get the data range from the polydata.
     double dataMinimum = _polyData->GetScalarRange()[0];
     double background = 0;
     double dataMaximum = _polyData->GetScalarRange()[1];
@@ -316,15 +295,16 @@ void ViewerWidget::renderData( vtkSmartPointer<vtkImageData> imData, std::string
     // Get the colormap image.
     auto colorMapImage = colorMapAction.getColorMapImage();
 
-    // Loop to read in colors from the colormap qimage.
+    // If the dimension equals the flow component dimension, use pre defined colormap, otherwise loop to read in colors from the colormap qimage.
     if (_chosenDimension == 6) {
         
             color->AddRGBPoint(0, 1, 0, 0);
             color->AddRGBPoint(1, 1, 1, 0);
             color->AddRGBPoint(2, 0, 0, 1);
             color->AddRGBPoint(3, 0, 1, 0);
-            
-        
+            color->AddRGBPoint(4, 0, 1, 1);
+            color->AddRGBPoint(5, 0, 1, 1);
+            color->AddRGBPoint(6, 0, 1, 1);
     }
     else {
         for (int pixelX = 0; pixelX < colorMapImage.width(); pixelX++) {
@@ -333,14 +313,8 @@ void ViewerWidget::renderData( vtkSmartPointer<vtkImageData> imData, std::string
             color->AddRGBPoint(normalizedPixelX * (dataMaximum - dataMinimum) + dataMinimum, pixelColor.redF(), pixelColor.greenF(), pixelColor.blueF());
         }
     }
-        
-
-    
-    
-    vtkSmartPointer<vtkPiecewiseFunction> colormapOpacity = vtkSmartPointer<vtkPiecewiseFunction>::New();
-     //Set the opacity of the non-object voxels to 0.
-    colormapOpacity->AddPoint(background, 0, 1, 1);
-
+  
+    // Apply data and colormap to the mapper that is used when data is not selected.
     vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
     mapper->SetInputData(_polyData);
     mapper->SetLookupTable(color);
@@ -348,18 +322,12 @@ void ViewerWidget::renderData( vtkSmartPointer<vtkImageData> imData, std::string
     vtkSmartPointer<vtkActor> volActor = vtkSmartPointer<vtkActor>::New();
     volActor->SetMapper(mapper);
     volActor->GetProperty()->SetOpacity(0.2); 
-    // Add the current volume to the renderer.
+    
     
     if (_dataSelected) {
-        // Create color transfer function.
-        vtkSmartPointer<vtkColorTransferFunction> color2 = vtkSmartPointer<vtkColorTransferFunction>::New();
+       
+            //When data is selected a different colormap action needs to be used in order to allow for opacity difference.
         
-
-        
-
-        // Loop to read in colors from the colormap qimage.
-        
-            //color2->AddRGBPoint(1, 1, 0, 0, 1, 1);
             vtkSmartPointer<vtkLookupTable> lut = vtkSmartPointer<vtkLookupTable>::New();
             if (_colorSelectionToggled) {
 
@@ -385,9 +353,7 @@ void ViewerWidget::renderData( vtkSmartPointer<vtkImageData> imData, std::string
             
             lut->Build();
 
-        vtkSmartPointer<vtkPiecewiseFunction> colormapOpacity2 = vtkSmartPointer<vtkPiecewiseFunction>::New();
-        //Set the opacity of the non-object voxels to 0.
-        colormapOpacity2->AddPoint(0, 0, 1, 1);
+        
 
         vtkSmartPointer<vtkPolyDataMapper> mapper2 = vtkSmartPointer<vtkPolyDataMapper>::New();
         mapper2->SetInputData(_polyData);
@@ -395,7 +361,6 @@ void ViewerWidget::renderData( vtkSmartPointer<vtkImageData> imData, std::string
 
         vtkSmartPointer<vtkActor> volActor2 = vtkSmartPointer<vtkActor>::New();
         volActor2->SetMapper(mapper2);
-        //volActor2->GetProperty()->SetOpacity(1);
 
         // Add the current volume to the renderer.
         mRenderer->AddViewProp(volActor2);
@@ -405,7 +370,7 @@ void ViewerWidget::renderData( vtkSmartPointer<vtkImageData> imData, std::string
     }
 	// Center camera.
     if (_firstRender) {
-        mRenderer->ResetCamera(); // Breaks here with subset visualization
+        mRenderer->ResetCamera(); 
         _firstRender = false;
     }
 	// Render.
@@ -413,18 +378,19 @@ void ViewerWidget::renderData( vtkSmartPointer<vtkImageData> imData, std::string
 }
 
 void ViewerWidget::setSelectedData(Points& points, std::vector<unsigned int, std::allocator<unsigned int>> selectionIndices, int chosenDim, int boundsArray[2]) {
-     
+        // Create the data array used to safe the selected points
         vtkSmartPointer<vtkFloatArray> dataArray = vtkSmartPointer<vtkFloatArray>::New();
         dataArray->SetNumberOfValues(_polyData->GetPointData()->GetScalars()->GetSize());
+        // Set all values in the array to 0 for non selected data.
         for (int i = 0; i < dataArray->GetSize(); i++)
         {
             dataArray->SetValue(i, 0);
         }
         
+        // Now change these datapoints to a different value if they are selected in order to do differenction between them.
         int count = 0;
         for (int i = 0; i < selectionIndices.size(); i++)
         {
-            
             for (int j = 0; j < points.getProperty("lineSize").toInt(); j++)
             {
                 dataArray->SetValue(selectionIndices[i]* points.getProperty("lineSize").toInt()+j, 0.5);
@@ -433,27 +399,14 @@ void ViewerWidget::setSelectedData(Points& points, std::vector<unsigned int, std
             {
                 if (_colorSelectionToggled) {
                     dataArray->SetValue(selectionIndices[i] * points.getProperty("lineSize").toInt() + j, (_savedSpeedArray->GetValue(selectionIndices[i] * points.getProperty("lineSize").toInt() + j) + 1) * 0.25);
-
                 }
                 else {
                     dataArray->SetValue(selectionIndices[i] * points.getProperty("lineSize").toInt() + j, 1);
 
                 }
-               
-
             }
-            
-            
-            
         }
-
-       
-
-
         _polyData->GetPointData()->SetScalars(dataArray);
-        
-        
-        
 
         if (selectionIndices.size() == 0) {
             _dataSelected = false;
@@ -467,7 +420,6 @@ void ViewerWidget::setSelectedData(Points& points, std::vector<unsigned int, std
         // Return the selection imagedata object.   
 }
 void ViewerWidget::setSelectedDataTime(Points& points, std::vector<unsigned int, std::allocator<unsigned int>> selectionIndices, int chosenDim, int boundsArray[2]) {
-    
         vtkSmartPointer<vtkFloatArray> dataArray = vtkSmartPointer<vtkFloatArray>::New();
         dataArray->SetNumberOfValues(_polyData->GetPointData()->GetScalars()->GetSize());
         for (int i = 0; i < dataArray->GetSize(); i++)
@@ -478,7 +430,6 @@ void ViewerWidget::setSelectedDataTime(Points& points, std::vector<unsigned int,
         int count = 0;
         for (int i = 0; i < selectionIndices.size(); i++)
         {
-            
             for (int j = 0; j < 153; j++)
             {
                 dataArray->SetValue(selectionIndices[i]* points.getProperty("lineSize").toInt()+j, 0.5);
@@ -487,16 +438,9 @@ void ViewerWidget::setSelectedDataTime(Points& points, std::vector<unsigned int,
             {
                 dataArray->SetValue(selectionIndices[i]* points.getProperty("lineSize").toInt()+j, 1);
             }
-            
-            
         }
 
-
         _polyData->GetPointData()->SetScalars(dataArray);
-        
-        
-       
-
         if (selectionIndices.size() == 0) {
             _dataSelected = false;
             _polyData->GetPointData()->SetScalars(_savedSpeedArray);
@@ -508,12 +452,12 @@ void ViewerWidget::setSelectedDataTime(Points& points, std::vector<unsigned int,
         // Return the selection imagedata object.   
 }
 
-
+// Unused function in the flowviewer, left over from the volumeviewer.
 vtkSmartPointer<vtkImageData> ViewerWidget::connectedSelection(Points& points,int chosenDim, int *seedpoint, float upperThreshold, float lowerThreshold) {
     double dataMinimum = _imData->GetScalarRange()[0]+1;
 
     double dataMaximum = _imData->GetScalarRange()[1];
-    std::cout << "connectselected" << std::endl;
+    
     auto dataBounds = _imData->GetExtent();
 
     float onePercent = (abs(dataMaximum - dataMinimum))/ 100;
@@ -549,18 +493,6 @@ vtkSmartPointer<vtkImageData> ViewerWidget::connectedSelection(Points& points,in
 }
 
 void ViewerWidget::setClusterColor(const Dataset<Clusters>& clusterData) {
-    //auto test = clusterData->getRawDataSize();
-    //std::cout << test << std::endl;
     _clusterData = clusterData;
     _clusterLoaded = true;
-    //for (const auto& cluster : clusterData->getClusters()) {
-        //cluster.getIndices();
-
-    //}
 }
-
-//void ViewerWidget::setSelectedCell(int cellID, int *xyz) {
-//    _selectedCell = cellID;   
-//    _selectedCellCoordinate = xyz;
-//    _Flow4DViewerPlugin.getRendererSettingsAction().getSelectedPointsAction().getPositionAction().changeValue(xyz);
-//}

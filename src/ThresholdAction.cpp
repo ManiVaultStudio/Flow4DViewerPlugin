@@ -40,7 +40,6 @@ QWidget* ThresholdAction::getWidget(QWidget* parent, const std::int32_t& widgetF
 
     layout->addWidget(_lowerAction.createWidget(widget));
     layout->addWidget(_upperAction.createWidget(widget));
-    //layout->addWidget(_thresholdAction.createWidget(widget));
     
 
     widget->setLayout(layout);
